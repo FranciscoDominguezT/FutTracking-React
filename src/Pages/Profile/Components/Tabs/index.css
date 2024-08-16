@@ -1,0 +1,41 @@
+.tabs {
+    position: relative;
+    display: flex;
+    justify-content: space-around;
+    background-color: #fff;
+    border-bottom: 1px solid #ddd;
+}
+
+
+.tab {
+    flex-grow: 1;
+    text-align: center;
+    padding: 10px 0;
+    cursor: pointer;
+    color: #555;
+    font-weight: bold;
+    background: none;
+    border: none;
+    outline: none;
+    appearance: none;
+    position: relative;
+    z-index: 1;
+    transition: color 0.3s ease;
+}
+
+
+.tab.active {
+    color: #157446;
+}
+
+
+.tab-indicator {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 33.33%;
+    height: 3px;
+    background-color: #157446;
+    transition: transform 0.3s ease;
+    z-index: 0;
+}

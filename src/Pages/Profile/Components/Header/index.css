@@ -1,0 +1,41 @@
+.profile-header {
+    background-color: #157446;
+    padding: 40px 50px;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+.back-buttont {
+    background: #000;
+    border: none;
+    border-radius: 50%;
+    width: 35px;
+    height: 35px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    top: 30px;
+    left: 25px;
+    cursor: pointer;
+    color: white;
+    font-size: 18px;
+}
+
+.back-link {
+    color: white;
+    text-decoration: none;
+    margin-top: 3px;
+    text-align: center;
+}
+
+.back-link:hover {
+    color: white;
+}
+
+.logo {
+    width: 80px;
+}
