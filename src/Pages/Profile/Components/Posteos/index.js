@@ -74,17 +74,23 @@ const Posteos = () => {
         event.stopPropagation();
         if (window.confirm("Are you sure you want to delete this tweet?")) {
             try {
-                await fetch(`http://localhost:5001/api/posts/${postId}`, {
+                const response = await fetch(`http://localhost:5001/api/posts/${postId}`, {
                     method: 'DELETE'
                 });
-                setPosts(posts.filter(post => post.id !== postId));
-                setSelectedPost(null);
+                console.log('Delete response status:', response.status); // Verifica el estado
+                if (response.ok) {
+                    setPosts(posts.filter(post => post.id !== postId));
+                    setSelectedPost(null);  // Deselect the post if it's selected
+                } else {
+                    console.error('Failed to delete post, response:', await response.text()); // Verifica la respuesta
+                }
             } catch (error) {
                 console.error("Error deleting tweet:", error);
             }
         }
     };
-
+    
+    
     const handleTweetCreated = (newTweet) => {
         setPosts([newTweet, ...posts]);
     };
