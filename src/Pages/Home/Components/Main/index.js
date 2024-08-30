@@ -14,7 +14,7 @@ import {
 import { FaRegEnvelope } from "react-icons/fa6";
 import "./index.css";
 
-const API_BASE_URL = 'http://localhost:5000/api';
+const API_BASE_URL = 'http://localhost:5001/api';
 
 const Main = () => {
   const [isPlaying, setIsPlaying] = useState(false);
@@ -224,7 +224,7 @@ const Main = () => {
     } catch (error) {
         console.error("Error fetching comments:", error);
     }
-};
+  };
 
 
   const handleCommentLike = async (commentId) => {

@@ -10,7 +10,7 @@ const ProfileInfo = ({ onEditClick }) => {
     useEffect(() => {
         const fetchProfile = async () => {
             try {
-                const response = await fetch('http://localhost:5000/api/profile/profile'); // Asegúrate de que esta URL coincida con tu configuración
+                const response = await fetch('http://localhost:5001/api/profile/profile'); // Asegúrate de que esta URL coincida con tu configuración
                 const data = await response.json();
 
                 if (response.ok) {
@@ -35,9 +35,9 @@ const ProfileInfo = ({ onEditClick }) => {
         <div className="profile-info">
             <img src={profile.avatar_url} alt="Player Profile" className="profile-pic" />
             <div className="profile-details">
-                <h1 className="profile-name">{profile.usuarios.nombre} {profile.usuarios.apellido}</h1>
-                <p className="profile-role">{profile.usuarios.rol}</p>
-                <p className="profile-location">{profile.provincias.nombre}, {profile.naciones.nombre}</p>
+                <h1 className="profile-name">{profile.nombre} {profile.apellido}</h1>
+                <p className="profile-role">{profile.rol}</p>
+                <p className="profile-location">{profile.provincia_nombre}, {profile.nacion_nombre}</p>
                 <p className="profile-followers"><span>{followersCount} followers</span></p>
             </div>
             <button 

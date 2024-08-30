@@ -20,7 +20,7 @@ const Posteos = () => {
 
     const fetchPosts = async () => {
         try {
-            const response = await fetch('http://localhost:5000/api/posts');
+            const response = await fetch('http://localhost:5001/api/posts');
             const data = await response.json();
             setPosts(data);
         } catch (error) {
@@ -45,13 +45,13 @@ const Posteos = () => {
             const isLiked = likedPosts[postId];
             const newLikeCount = isLiked ? currentLikes - 1 : currentLikes + 1;
 
-            const response = await fetch(`http://localhost:5000/api/posts/${postId}/like`, {
+            const response = await fetch(`http://localhost:5001/api/posts/${postId}/like`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({ likes: newLikeCount })
-            })
+            });
             const data = await response.json();
 
             setPosts(posts.map(post =>
@@ -61,7 +61,7 @@ const Posteos = () => {
             const newLikedPosts = {
                 ...likedPosts,
                 [postId]: !isLiked
-            }
+            };
 
             setLikedPosts(newLikedPosts);
             saveLikedPosts(newLikedPosts);
@@ -74,9 +74,9 @@ const Posteos = () => {
         event.stopPropagation();
         if (window.confirm("Are you sure you want to delete this tweet?")) {
             try {
-                await fetch(`http://localhost:5000/api/posts/${postId}`, {
+                await fetch(`http://localhost:5001/api/posts/${postId}`, {
                     method: 'DELETE'
-                })
+                });
                 setPosts(posts.filter(post => post.id !== postId));
                 setSelectedPost(null);
             } catch (error) {
@@ -102,7 +102,7 @@ const Posteos = () => {
     const handleCommentCreated = (newComment) => {
         setPosts(posts.map(post =>
             post.id === newComment.posteoid
-                ? { ...post, respuestas_posteos: [{ count: (post.respuestas_posteos[0]?.count || 0) + 1 }] }
+                ? { ...post, count: (post.count || 0) + 1 }
                 : post
         ));
     };
@@ -117,16 +117,16 @@ const Posteos = () => {
                 onClose={() => setIsModalOpen(false)}
                 onTweetCreated={handleTweetCreated}
             />
-            {posts.map(post => (
-                <div key={post.id} className="post" onClick={() => handlePostClick(post)} style={{ cursor: 'pointer' }}>
+            {posts.map((post, index) => (
+                <div key={`${post.id}-${index}`} className="post" onClick={() => handlePostClick(post)} style={{ cursor: 'pointer' }}>
                     <div className="post-header">
                         <img
-                            src={post.usuarios?.perfil_jugadores?.[0]?.avatar_url || 'default-avatar.png'}
+                            src={post.avatar_url || 'default-avatar.png'}
                             alt="Avatar del usuario"
                             className="user-avatar"
                         />
                         <div className="dxd">
-                            <h3>{post.usuarios?.nombre || 'Unknown'} {post.usuarios?.apellido || 'User'}</h3>
+                            <h3>{post.nombre || 'Unknown'} {post.apellido || 'User'}</h3>
                             <p>{new Date(post.fechapublicacion).toLocaleString()}</p>
                         </div>
                         <button
@@ -148,7 +148,7 @@ const Posteos = () => {
                             onClick={(event) => handleCommentClick(event, post.id)}
                             className="ytr-button"
                         >
-                            <FaComment className="ytr" /> {post.respuestas_posteos[0]?.count || 0}
+                            <FaComment className="ytr" /> {post.count || 0}
                         </button>
                     </div>
                 </div>
@@ -169,7 +169,6 @@ const Posteos = () => {
                 onCommentCreated={handleCommentCreated}
                 postId={selectedPostId}
             />
-
         </div>
     );
 }

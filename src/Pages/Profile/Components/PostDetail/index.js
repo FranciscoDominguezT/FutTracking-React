@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import supabase from '../../../../Configs/supabaseClient';
+import axios from 'axios';
 import { FaHeart, FaComment, FaArrowLeft, FaTrash } from 'react-icons/fa';
 import NewCommentModal from '../NewCommentModal'; // Nuevo componente que crearemos
 import './index.css';
@@ -17,25 +17,8 @@ const PostDetail = ({ post, onClose, onDelete, onLike, likedPosts, fetchPosts })
 
     const fetchComments = async () => {
         try {
-            const { data, error } = await supabase
-                .from('respuestas_posteos')
-                .select(`
-                    *,
-                    usuarios (
-                        id,
-                        nombre,
-                        apellido,
-                        perfil_jugadores (
-                            avatar_url
-                        )
-                    ),
-                    respuestas:respuestas_posteos(count)
-                `)
-                .eq('posteoid', post.id)
-                .order('fechapublicacion', { ascending: true });
-
-            if (error) throw error;
-            setComments(data);
+            const response = await axios.get(`http://localhost:5001/api/posts/${post.id}/comments`);
+            setComments(response.data);
         } catch (error) {
             console.error("Error fetching comments:", error);
         }
@@ -48,6 +31,7 @@ const PostDetail = ({ post, onClose, onDelete, onLike, likedPosts, fetchPosts })
             likes: likedPosts[prevPost.id] ? prevPost.likes - 1 : prevPost.likes + 1
         }));
     };
+
     const handleLocalDelete = async (event) => {
         await onDelete(event, localPost.id);
         onClose();
@@ -61,13 +45,7 @@ const PostDetail = ({ post, onClose, onDelete, onLike, likedPosts, fetchPosts })
     const handleDeleteComment = async (commentId) => {
         if (window.confirm("Are you sure you want to delete this comment?")) {
             try {
-                const { error } = await supabase
-                    .from('respuestas_posteos')
-                    .delete()
-                    .eq('id', commentId);
-
-                if (error) throw error;
-
+                await axios.delete(`http://localhost:5001/api/posts/${localPost.id}/comments/${commentId}`);
                 setComments(comments.filter(comment => comment.id !== commentId));
             } catch (error) {
                 console.error("Error deleting comment:", error);
@@ -92,16 +70,9 @@ const PostDetail = ({ post, onClose, onDelete, onLike, likedPosts, fetchPosts })
             const isLiked = likedComments[commentId];
             const newLikeCount = isLiked ? currentLikes - 1 : currentLikes + 1;
 
-            const { data, error } = await supabase
-                .from('respuestas_posteos')
-                .update({ likes: newLikeCount })
-                .eq('id', commentId)
-                .select();
-
-            if (error) throw error;
-
+            const response = await axios.put(`http://localhost:5001/api/comments/${commentId}/like`, { likes: newLikeCount });
             setComments(comments.map(comment =>
-                comment.id === commentId ? { ...comment, likes: data[0].likes } : comment
+                comment.id === commentId ? { ...comment, likes: response.data.likes } : comment
             ));
 
             const newLikedComments = {
@@ -120,16 +91,15 @@ const PostDetail = ({ post, onClose, onDelete, onLike, likedPosts, fetchPosts })
             .filter(comment => comment.parentid === parentId)
             .map(comment => (
                 <div key={comment.id} className="comment" style={{ marginLeft: `${depth * 20}px` }}>
-                    {/* Renderizar el contenido del comentario */}
                     <div className="comment-header">
                         <img
-                            src={comment.usuarios?.perfil_jugadores?.[0]?.avatar_url || 'default-avatar.png'}
+                            src={comment.avatar_url || 'default-avatar.png'}
                             alt="Avatar del usuario"
-                            className="user-avatare"
+                            className="user-avatar"
                         />
                         <div className="comment-info">
-                            <h4>{comment.usuarios?.nombre || 'Unknown'} {comment.usuarios?.apellido || 'User'}</h4>
-                            <p>{new Date(comment.fechapublicacion).toLocaleString()}</p>
+                            <h4>{comment.nombre || 'Unknown'} {comment.apellido || 'User'}</h4>
+                            <p>{convertToLocalTime(comment.fechapublicacion)}</p>
                         </div>
                     </div>
                     <p className="comment-content">{comment.contenido}</p>
@@ -144,13 +114,12 @@ const PostDetail = ({ post, onClose, onDelete, onLike, likedPosts, fetchPosts })
                             setSelectedParentId(comment.id);
                             setIsCommentModalOpen(true);
                         }} className="reply-button">
-                            <FaComment /> {(comment.respuestas && comment.respuestas[0]?.count) || 0}
+                            <FaComment /> {(comment.respuestas && comment.respuestas.length) || 0}
                         </button>
                         <button onClick={() => handleDeleteComment(comment.id)} className="delete-button">
                             <FaTrash />
                         </button>
                     </div>
-                    {/* Renderizar comentarios hijos de forma recursiva */}
                     {renderComments(comment.id, depth + 1)}
                 </div>
             ));
@@ -168,12 +137,12 @@ const PostDetail = ({ post, onClose, onDelete, onLike, likedPosts, fetchPosts })
                 <div className="original-post">
                     <div className="post-header">
                         <img
-                            src={localPost.usuarios?.perfil_jugadores?.[0]?.avatar_url || 'default-avatar.png'}
+                            src={localPost.avatar_url || 'default-avatar.png'}
                             alt="Avatar del usuario"
-                            className="user-avatare"
+                            className="user-avatar"
                         />
                         <div className="post-info">
-                            <h3>{localPost.usuarios?.nombre || 'Unknown'} {localPost.usuarios?.apellido || 'User'}</h3>
+                            <h3>{localPost.nombre || 'Unknown'} {localPost.apellido || 'User'}</h3>
                             <p>{convertToLocalTime(localPost.fechapublicacion)}</p>
                         </div>
                         <button

@@ -28,7 +28,7 @@ const MisDatos = () => {
 
     const fetchUserData = async () => {
         try {
-            const response = await fetch('http://localhost:5000/api/user/userdata');
+            const response = await fetch('http://localhost:5001/api/user/userdata');
             if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
             const data = await response.json();
             setUserData(data);
@@ -37,7 +37,7 @@ const MisDatos = () => {
                 altura: data.altura,
                 nacion_id: data.nacion_id,
                 provincia_id: data.provincia_id,
-                email: data.usuarios.email
+                email: data.usuarios?.email || ''
             });
         } catch (error) {
             console.error("Error fetching user data:", error);
@@ -46,7 +46,7 @@ const MisDatos = () => {
 
     const fetchNaciones = async () => {
         try {
-            const response = await fetch('http://localhost:5000/api/user/naciones');
+            const response = await fetch('http://localhost:5001/api/user/naciones');
             if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
             const data = await response.json();
             setNaciones(data);
@@ -57,7 +57,7 @@ const MisDatos = () => {
 
     const fetchProvincias = async (nacionId) => {
         try {
-            const response = await fetch(`http://localhost:5000/api/user/provincias/${nacionId}`);
+            const response = await fetch(`http://localhost:5001/api/user/provincias/${nacionId}`);
             if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
             const data = await response.json();
             setProvincias(data);
@@ -78,7 +78,7 @@ const MisDatos = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            const response = await fetch('http://localhost:5000/api/user/userdata', {
+            const response = await fetch('http://localhost:5001/api/user/userdata', {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json'
@@ -103,7 +103,7 @@ const MisDatos = () => {
             {!editing ? (
                 <div className="datos-list">
                     <p><strong>Nacionalidad:</strong> {naciones.find(n => n.id === userData.nacion_id)?.nombre}</p>
-                    <p><strong>Correo electrónico:</strong> {userData.usuarios.email}</p>
+                    <p><strong>Correo electrónico:</strong> {userData.usuarios?.email}</p>
                     <p><strong>Residencia:</strong> {provincias.find(p => p.id === userData.provincia_id)?.nombre}</p>
                     <p><strong>Edad:</strong> {userData.edad}</p>
                     <p><strong>Altura:</strong> {userData.altura} cm</p>

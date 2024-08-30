@@ -46,7 +46,7 @@ const Gallery = () => {
   useEffect(() => {
     const fetchVideos = async () => {
       try {
-        const response = await fetch('http://localhost:5000/api/userProfile/videos');
+        const response = await fetch('http://localhost:5001/api/userProfile/videos');
         if (!response.ok) {
           console.log("Error fetching videos:", response.statusText);
         }
