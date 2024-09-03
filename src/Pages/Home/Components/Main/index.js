@@ -37,7 +37,12 @@ const Main = () => {
   const commentMenuRef = useRef();
   const [likedComments, setLikedComments] = useState({});
   const progressBarRef = useRef();
+  const [visibleReplies, setVisibleReplies] = useState({});
   const [commentsCount, setCommentsCount] = useState(0);
+  const [isFollowing, setIsFollowing] = useState(false);
+  const [currentUserId, setCurrentUserId] = useState(11);
+  const [userData, setUserData] = useState(null);
+  const [userLocation, setUserLocation] = useState("");
 
   useEffect(() => {
     const getRandomVideoId = () => Math.floor(Math.random() * 5) + 1;
@@ -51,6 +56,23 @@ const Main = () => {
         setSelectedVideo(videoResponse.data);
         setLikes(videoResponse.data.likes);
         setLiked(videoResponse.data.liked);
+
+        const commentsResponse = await axios.get(`${API_BASE_URL}/videos/${videoId}/comments`);
+        console.log("Video comments:", commentsResponse.data);
+        setComments(commentsResponse.data);
+
+        const likesResponse = await axios.get(`${API_BASE_URL}/videos/${videoId}/likes`);
+        console.log("Video likes:", likesResponse.data);
+        setLikes(likesResponse.data.likes);
+
+        const comentarioLikesResponse = await axios.get(`${API_BASE_URL}/videos/${videoId}/comment-likes`);
+        console.log("Comentario likes:", comentarioLikesResponse.data);
+        const likesMap = comentarioLikesResponse.data.reduce((acc, like) => {
+          acc[like.comentarioid] = (acc[like.comentarioid] || 0) + 1;
+          return acc;
+        }, {});
+        setLikedComments(likesMap);
+
       } catch (error) {
         console.error("Error al obtener datos del video:", error.response?.data || error.message);
       }
@@ -72,6 +94,7 @@ const Main = () => {
       };
       playVideo();
     }
+
   }, [videoData]);
 
   useEffect(() => {
@@ -139,11 +162,11 @@ const Main = () => {
 
   useEffect(() => {
     if (selectedVideo && Array.isArray(selectedVideo.likes)) {
-        setLikes(selectedVideo.likes.length);
-        setLiked(selectedVideo.likes.includes(11)); 
+      setLikes(selectedVideo.likes.length);
+      setLiked(selectedVideo.likes.includes(11)); 
     } else {
-        setLikes(0);
-        setLiked(false); // O el valor por defecto que prefieras
+      setLikes(0);
+      setLiked(false); // O el valor por defecto que prefieras
     }
   }, [selectedVideo]);
   
@@ -218,24 +241,34 @@ const Main = () => {
   const handleCommentClick = async () => {
     setShowCommentMenu(true);
     try {
-        const response = await axios.get(`${API_BASE_URL}/comments/${selectedVideo.id}`);
-        console.log("Comentarios obtenidos:", response.data); // <-- Añadir este log
+      const response = await axios.get(`${API_BASE_URL}/comments/${selectedVideo.id}`);
+      console.log("Comentarios obtenidos:", response.data);
+      
+      if (Array.isArray(response.data)) {
         setComments(response.data);
+      } else {
+        console.error("La respuesta no es un array:", response.data);
+      }
     } catch (error) {
-        console.error("Error fetching comments:", error);
+      console.error("Error fetching comments:", error);
     }
   };
+  
 
 
   const handleCommentLike = async (commentId) => {
     try {
-      const response = await axios.post(`${API_BASE_URL}/comments/${commentId}/like`);
+      const response = await axios.post(`${API_BASE_URL}/comments/${commentId}/like`, { userid: currentUserId });
       setComments(comments.map(c => c.id === commentId ? { ...c, likes: response.data.likes } : c));
-      setLikedComments({ ...likedComments, [commentId]: !likedComments[commentId] });
+      setLikedComments(prev => ({ ...prev, [commentId]: response.data.likes }));
     } catch (error) {
       console.error("Error updating comment likes:", error);
     }
   };
+  
+  
+  
+
 
   const handleSubmitComment = async () => {
     if (!newComment.trim()) return;
@@ -256,37 +289,40 @@ const Main = () => {
   };
 
   const renderComments = (parentId = null, level = 0) => {
-    return comments
-      .filter(comment => comment.parent_id === parentId)
-      .map(comment => (
-        <div key={comment.id} className={`comment level-${level}`}>
-          <div className="comment-user-info">
-            <img
-              src={comment.usuarios?.perfil_jugadores?.[0]?.avatar_url || "default-avatar.png"}
-              alt="User Profile"
-              className="comment-user-profile-img"
-            />
-            <div className="comment-user-details">
-              <p className="comment-user-name">
-                {comment.usuarios?.nombre || 'Unknown'} {comment.usuarios?.apellido || 'User'}
-              </p>
-              <p className="comment-timestamp">{new Date(comment.fechacomentario).toLocaleString()}</p>
+    if (!Array.isArray(comments)) return null;
+    const sortedComments = [...comments].sort((a, b) => new Date(a.fechacomentario) - new Date(b.fechacomentario));
+    return sortedComments
+        .filter(comment => comment.parent_id === parentId)
+        .map(comment => (
+            <div key={comment.id} className={`comment level-${level}`}>
+                <div className="comment-user-info">
+                    <img
+                        src={comment.avatar_url || "default-avatar.png"}
+                        alt={`${comment.nombre} ${comment.apellido}`}
+                        className="comment-user-profile-img"
+                    />
+                    <div className="comment-user-details">
+                        <p className="comment-user-name">
+                            {`${comment.nombre} ${comment.apellido}` || "Unknown User"}
+                        </p>
+                        <p className="comment-timestamp">{new Date(comment.fechacomentario).toLocaleString()}</p>
+                    </div>
+                </div>
+                <p className="comment-text">{comment.contenido}</p>
+                <div className="comment-stats">
+                    <button className="reply-button" onClick={() => handleReplyClick(comment.id)}>
+                        Responder
+                    </button>
+                    <div className="comment-like-icon" onClick={() => handleCommentLike(comment.id)}>
+                        <FaHeart className={likedComments[comment.id] ? "liked" : ""} />
+                        <span>{comment.likes}</span>
+                    </div>
+                </div>
+                {renderComments(comment.id, level + 1)}
             </div>
-          </div>
-          <p className="comment-text">{comment.contenido}</p>
-          <div className="comment-stats">
-            <button className="reply-button" onClick={() => handleReplyClick(comment.id)}>
-              Responder
-            </button>
-            <div className="comment-like-icon" onClick={() => handleCommentLike(comment.id)}>
-              <FaHeart className={likedComments[comment.id] ? "liked" : ""} />
-              <span>{comment.likes}</span>
-            </div>
-          </div>
-          {renderComments(comment.id, level + 1)}
-        </div>
-      ));
-  };
+        ));
+};
+
 
   const formatTime = (time) => {
     const minutes = Math.floor(time / 60);

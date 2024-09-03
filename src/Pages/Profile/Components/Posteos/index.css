@@ -7,6 +7,10 @@
     padding-bottom: 20px; /* Añade un espacio en la parte inferior */
 }
 
+.posteos-container::-webkit-scrollbar {
+    display: none;  /* Para Chrome, Safari y Opera */
+}
+
 
 .posts-scroll-container {
     height: 500px; /* Ajusta este valor según tus necesidades */

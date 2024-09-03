@@ -268,7 +268,7 @@
     transform: translateX(-50%);
     width: 100%;
     max-width: 450px;
-    max-height: 50vh; /* Ajusta la altura máxima */
+    height: 40vh;
     background-color: #0c0c0c;
     padding: 20px;
     border-radius: 10px;
@@ -294,10 +294,22 @@
     flex-grow: 1;
 }
 
+.comment-section::-webkit-scrollbar {
+    display: none;  /* Para Chrome, Safari y Opera */
+}
+
 .comment {
     margin-bottom: 10px;
     padding: 10px;
     border-radius: 10px;
+}
+
+.comment::-webkit-scrollbar {   
+    display: none;
+}
+
+.comment > .comment {
+    margin-left: 2rem; /* Ajusta este valor para mover las respuestas más a la derecha */
 }
 
 .comment-user-info {
@@ -327,6 +339,7 @@
     color: #ddd;
     margin-top: 5px;
     font-size: 0.9rem;
+    padding-left: 3rem;
 }
 
 .comment-timestamp {
@@ -339,15 +352,46 @@
     justify-content: space-between;
     align-items: center;
     margin-top: 5px;
+    padding-left: 2.8rem;
 }
 
 .reply-button {
     background-color: transparent;
-    color: #ffffff;
+    color: #fff;
     border: none;
     cursor: pointer;
     font-size: 0.8rem;
 }
+
+.comment-reply {
+    margin-top: 10px;
+    padding-left: 3rem;
+  }
+
+  .reply-user-name {
+    display: flex;
+    align-items: center;
+    margin-bottom: 5px;
+    font-weight: bold;
+    font-size: 0.9rem;
+  }
+  
+  .reply-icon {
+    margin: 0 5px;
+    font-size: 12px;
+  }
+
+  .comment, .comment-reply {
+    border-bottom: 1px solid #0c0c0c; /* o cualquier otro color */
+  }
+  
+  .comment-reply .comment-text {
+    padding-left: 0;
+  }
+  
+  .comment-reply .comment-stats {
+    padding-left: 0;
+  }
 
 .comment-like-icon {
     display: flex;
@@ -388,6 +432,7 @@
     background: rgba(255, 255, 255, 0.1);
     color: #fff;
     margin-right: 10px;
+    
 }
 
 .comment-send-button {
@@ -405,20 +450,23 @@
     color: #000;
 }
 
-.comment {
-    margin-bottom: 10px;
-    padding: 10px;
-    border-radius: 10px;
+.view-replies-button {
+    color: #fff;
+    border: none;
+    padding: 5px 10px;
+    font-size: 0.9rem;
+    margin-top: 5px;
+    cursor: pointer;
   }
   
-  .comment.level-0 {
-    margin-left: 0;
+  .hide-replies-button {
+    font-size: 0.9rem;
+    color: #fff;
+    border: none;
+    padding: 5px 10px;
+    margin-top: 5px;
+    cursor: pointer;
+    background-color: #0c0c0c;
   }
   
-  .comment.level-1 {
-    margin-left: 20px;
-  }
   
-  .comment.level-2 {
-    margin-left: 40px;
-  }

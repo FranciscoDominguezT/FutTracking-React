@@ -37,7 +37,7 @@ const MisDatos = () => {
                 altura: data.altura,
                 nacion_id: data.nacion_id,
                 provincia_id: data.provincia_id,
-                email: data.usuarios?.email || ''
+                email: data.email || ''
             });
         } catch (error) {
             console.error("Error fetching user data:", error);
@@ -98,12 +98,12 @@ const MisDatos = () => {
     }
 
     return (
-        <div className="mis-datos-container">
+        <div className={`mis-datos-container ${editing ? 'editing' : ''}`}>
             <h2>Mis Datos <FaPencilAlt onClick={handleEdit} className="edit-icon" /></h2>
             {!editing ? (
                 <div className="datos-list">
                     <p><strong>Nacionalidad:</strong> {naciones.find(n => n.id === userData.nacion_id)?.nombre}</p>
-                    <p><strong>Correo electrónico:</strong> {userData.usuarios?.email}</p>
+                    <p><strong>Correo electrónico:</strong> {userData.email}</p>
                     <p><strong>Residencia:</strong> {provincias.find(p => p.id === userData.provincia_id)?.nombre}</p>
                     <p><strong>Edad:</strong> {userData.edad}</p>
                     <p><strong>Altura:</strong> {userData.altura} cm</p>

@@ -1,69 +1,48 @@
-import React, { useState, useEffect } from 'react';
-import supabase from '../../../../Configs/supabaseClient';
+import React, { useState } from 'react';
 import './index.css';
 
 const NewCommentModal = ({ isOpen, onClose, onCommentCreated, postId, parentId = null }) => {
   const [content, setContent] = useState('');
-  const [currentUser, setCurrentUser] = useState(null);
-
-  useEffect(() => {
-    // Fetch the current user data
-    const fetchCurrentUser = async () => {
-      try {
-        const { data, error } = await supabase
-          .from('usuarios')
-          .select(`
-            id,
-            nombre,
-            apellido,
-            perfil_jugadores (
-              avatar_url
-            )
-          `)
-          .eq('id', 11) // Assuming the current user ID is 11
-          .single();
-          
-        if (error) throw error;
-        setCurrentUser(data);
-      } catch (error) {
-        console.error("Error fetching current user:", error);
-      }
-    };
-
-    fetchCurrentUser();
-  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!content.trim()) return;
 
     try {
-      const { data, error } = await supabase
-        .from('respuestas_posteos')
-        .insert([
-          {
-            posteoid: postId,
-            usuarioid: currentUser.id, // Use the current user ID
-            contenido: content,
-            fechapublicacion: new Date().toISOString(),
-            likes: 0,
-            parentid: parentId
-          }
-        ])
-        .select();
+      const response = await fetch(`http://localhost:5001/api/posts/${postId}/comments`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          usuarioid: 11, // Asumiendo que el ID del usuario actual es 11
+          contenido: content,
+          parentid: parentId,
+        }),
+      });
 
-      if (error) throw error;
+      const newComment = await response.json();
 
-      const newCommentWithUserData = {
-        ...data[0],
-        usuarios: currentUser
-      };
+      if (response.ok) {
+        // Fetch user data for the new comment
+        const responseUser = await fetch('http://localhost:5001/api/users/11');
+        const userData = await responseUser.json();
 
-      onCommentCreated(newCommentWithUserData);
-      setContent('');
-      onClose();
+        const newCommentWithUserData = {
+          ...newComment,
+          nombre: userData.nombre,
+          apellido: userData.apellido,
+          avatar_url: userData.perfil_jugadores.avatar_url,
+        };
+
+        onCommentCreated(newCommentWithUserData);
+        setContent('');
+        onClose();
+      } else {
+        console.error('Error creating comment:', newComment);
+      }
     } catch (error) {
-      console.error("Error creating comment:", error);
+      console.error('Error creating comment:', error);
     }
   };
 

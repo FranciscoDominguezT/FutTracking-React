@@ -12,12 +12,20 @@ const PostDetail = ({ post, onClose, onDelete, onLike, likedPosts, fetchPosts })
     const [likedComments, setLikedComments] = useState({});
 
     useEffect(() => {
-        fetchComments();
-    }, [post.id]);
+        if (post && post.id) {
+            fetchComments();
+        }
+    }, [post]);
 
     const fetchComments = async () => {
+        if (!post || !post.id) {
+            console.error("Post or post.id is undefined");
+            return;
+        }
+    
         try {
             const response = await axios.get(`http://localhost:5001/api/posts/${post.id}/comments`);
+            console.log("Comments fetched:", response.data);
             setComments(response.data);
         } catch (error) {
             console.error("Error fetching comments:", error);
@@ -43,12 +51,12 @@ const PostDetail = ({ post, onClose, onDelete, onLike, likedPosts, fetchPosts })
     };
 
     const handleDeleteComment = async (commentId) => {
-        if (window.confirm("Are you sure you want to delete this comment?")) {
+        if (window.confirm("¿Estás seguro de que quieres eliminar este comentario?")) {
             try {
                 await axios.delete(`http://localhost:5001/api/posts/${localPost.id}/comments/${commentId}`);
-                setComments(comments.filter(comment => comment.id !== commentId));
+                setComments(comments.filter(comment => comment.comment_id !== commentId));
             } catch (error) {
-                console.error("Error deleting comment:", error);
+                console.error("Error eliminando el comentario:", error);
             }
         }
     };
@@ -72,7 +80,7 @@ const PostDetail = ({ post, onClose, onDelete, onLike, likedPosts, fetchPosts })
 
             const response = await axios.put(`http://localhost:5001/api/comments/${commentId}/like`, { likes: newLikeCount });
             setComments(comments.map(comment =>
-                comment.id === commentId ? { ...comment, likes: response.data.likes } : comment
+                comment.comment_id === commentId ? { ...comment, likes: response.data.likes } : comment
             ));
 
             const newLikedComments = {
@@ -82,7 +90,7 @@ const PostDetail = ({ post, onClose, onDelete, onLike, likedPosts, fetchPosts })
             setLikedComments(newLikedComments);
             localStorage.setItem('likedComments', JSON.stringify(newLikedComments));
         } catch (error) {
-            console.error("Error updating comment likes:", error);
+            console.error("Error actualizando likes del comentario:", error);
         }
     };
 
@@ -90,7 +98,7 @@ const PostDetail = ({ post, onClose, onDelete, onLike, likedPosts, fetchPosts })
         return comments
             .filter(comment => comment.parentid === parentId)
             .map(comment => (
-                <div key={comment.id} className="comment" style={{ marginLeft: `${depth * 20}px` }}>
+                <div key={comment.comment_id} className="comment" style={{ marginLeft: `${depth * 20}px` }}>
                     <div className="comment-header">
                         <img
                             src={comment.avatar_url || 'default-avatar.png'}
@@ -105,22 +113,22 @@ const PostDetail = ({ post, onClose, onDelete, onLike, likedPosts, fetchPosts })
                     <p className="comment-content">{comment.contenido}</p>
                     <div className="comment-footer">
                         <button
-                            onClick={() => handleCommentLike(comment.id, comment.likes)}
-                            className={`comment-likes ${likedComments[comment.id] ? 'liked' : ''}`}
+                            onClick={() => handleCommentLike(comment.comment_id, comment.likes)}
+                            className={`comment-likes ${likedComments[comment.comment_id] ? 'liked' : ''}`}
                         >
                             <FaHeart /> {comment.likes || 0}
                         </button>
                         <button onClick={() => {
-                            setSelectedParentId(comment.id);
+                            setSelectedParentId(comment.comment_id);
                             setIsCommentModalOpen(true);
                         }} className="reply-button">
                             <FaComment /> {(comment.respuestas && comment.respuestas.length) || 0}
                         </button>
-                        <button onClick={() => handleDeleteComment(comment.id)} className="delete-button">
+                        <button onClick={() => handleDeleteComment(comment.comment_id)} className="delete-button">
                             <FaTrash />
                         </button>
                     </div>
-                    {renderComments(comment.id, depth + 1)}
+                    {renderComments(comment.comment_id, depth + 1)}
                 </div>
             ));
     };

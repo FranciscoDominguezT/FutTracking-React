@@ -72,27 +72,41 @@ const Posteos = () => {
 
     const handleDeleteTweet = async (event, postId) => {
         event.stopPropagation();
-        if (window.confirm("Are you sure you want to delete this tweet?")) {
+        if (window.confirm("¿Estás seguro de que quieres eliminar este tweet?")) {
             try {
                 const response = await fetch(`http://localhost:5001/api/posts/${postId}`, {
                     method: 'DELETE'
                 });
-                console.log('Delete response status:', response.status); // Verifica el estado
+                
                 if (response.ok) {
-                    setPosts(posts.filter(post => post.id !== postId));
-                    setSelectedPost(null);  // Deselect the post if it's selected
+                    console.log('Tweet eliminado, actualizando el estado de los posts.');
+                    console.log('Post ID a eliminar:', postId);
+                    
+                    setPosts(prevPosts => {
+                        const updatedPosts = prevPosts.filter(post => post.id !== postId);
+                        console.log('Posts actualizados:', updatedPosts);
+                        return updatedPosts;
+                    });
+                    
+                    setSelectedPost(null);
+
                 } else {
-                    console.error('Failed to delete post, response:', await response.text()); // Verifica la respuesta
+                    const errorText = await response.text();
+                    console.error('Error al eliminar el post. Respuesta:', errorText);
+                    alert('Hubo un error al eliminar el tweet. Por favor, intenta de nuevo.');
                 }
             } catch (error) {
-                console.error("Error deleting tweet:", error);
+                console.error("Error al eliminar el tweet:", error);
+                console.error('Error al eliminar el post:', error.response.data);
+                alert('Hubo un error al eliminar el tweet. Por favor, intenta de nuevo.');
             }
         }
     };
     
     
     const handleTweetCreated = (newTweet) => {
-        setPosts([newTweet, ...posts]);
+        // Añade el nuevo tweet al inicio de la lista
+        setPosts(prevPosts => [newTweet, ...prevPosts]);
     };
 
     const handlePostClick = (post) => {
@@ -124,7 +138,7 @@ const Posteos = () => {
                 onTweetCreated={handleTweetCreated}
             />
             {posts.map((post, index) => (
-                <div key={`${post.id}-${index}`} className="post" onClick={() => handlePostClick(post)} style={{ cursor: 'pointer' }}>
+                <div key={post.id} className="post" onClick={() => handlePostClick(post)} style={{ cursor: 'pointer' }}>
                     <div className="post-header">
                         <img
                             src={post.avatar_url || 'default-avatar.png'}
@@ -160,23 +174,18 @@ const Posteos = () => {
                 </div>
             ))}
             {selectedPost && (
-                <PostDetail
-                    post={selectedPost}
-                    onClose={() => setSelectedPost(null)}
-                    onDelete={handleDeleteTweet}
-                    onLike={handleLike}
-                    likedPosts={likedPosts}
-                    fetchPosts={fetchPosts}
+                <PostDetail post={selectedPost} onClose={() => setSelectedPost(null)} />
+            )}
+            {isCommentModalOpen && selectedPostId && (
+                <NewCommentModal
+                    isOpen={isCommentModalOpen}
+                    onClose={() => setIsCommentModalOpen(false)}
+                    postId={selectedPostId}
+                    onCommentCreated={handleCommentCreated}
                 />
             )}
-            <NewCommentModal
-                isOpen={isCommentModalOpen}
-                onClose={() => setIsCommentModalOpen(false)}
-                onCommentCreated={handleCommentCreated}
-                postId={selectedPostId}
-            />
         </div>
     );
-}
+};
 
 export default Posteos;
