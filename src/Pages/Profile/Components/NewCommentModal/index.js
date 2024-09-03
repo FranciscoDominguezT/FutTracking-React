@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
+import axios from 'axios';
 import './index.css';
 
 const NewCommentModal = ({ isOpen, onClose, onCommentCreated, postId, parentId = null }) => {
@@ -9,38 +10,30 @@ const NewCommentModal = ({ isOpen, onClose, onCommentCreated, postId, parentId =
     if (!content.trim()) return;
 
     try {
-      const response = await fetch(`http://localhost:5001/api/posts/${postId}/comments`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          usuarioid: 11, // Asumiendo que el ID del usuario actual es 11
-          contenido: content,
-          parentid: parentId,
-        }),
+      console.log('Posting comment with postId:', postId);
+      const response = await axios.post(`http://localhost:5001/api/posts/${postId}/comments`, {
+        usuarioid: 11, // TODO: Reemplazar con ID dinámico del usuario autenticado
+        contenido: content,
+        parentid: parentId,
       });
 
-      const newComment = await response.json();
+      const newComment = response.data;
 
-      if (response.ok) {
-        // Fetch user data for the new comment
-        const responseUser = await fetch('http://localhost:5001/api/users/11');
-        const userData = await responseUser.json();
+      // Fetch user data for the new comment
+      const responseUser = await axios.get('http://localhost:5001/api/users/11');
+      const userData = responseUser.data;
+      console.log('User Data:', userData);
 
-        const newCommentWithUserData = {
-          ...newComment,
-          nombre: userData.nombre,
-          apellido: userData.apellido,
-          avatar_url: userData.perfil_jugadores.avatar_url,
-        };
+      const newCommentWithUserData = {
+        ...newComment,
+        nombre: userData.nombre,
+        apellido: userData.apellido,
+        avatar_url: userData.perfil_jugadores ? userData.perfil_jugadores.avatar_url : '', // Protege contra undefined
+      };
 
-        onCommentCreated(newCommentWithUserData);
-        setContent('');
-        onClose();
-      } else {
-        console.error('Error creating comment:', newComment);
-      }
+      onCommentCreated(newCommentWithUserData);
+      setContent('');
+      onClose();
     } catch (error) {
       console.error('Error creating comment:', error);
     }
