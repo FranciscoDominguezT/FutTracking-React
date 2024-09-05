@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { FaHeart, FaComment, FaArrowLeft, FaTrash } from "react-icons/fa";
-import NewCommentModal from "../NewCommentModal"; // Nuevo componente que crearemos
+import NewCommentModal from "../NewCommentModal";
 import "./index.css";
 
 const PostDetail = ({
@@ -57,7 +57,6 @@ const PostDetail = ({
       likes: likedPosts[prevPost.id] ? prevPost.likes - 1 : prevPost.likes + 1,
     }));
   };
-  
 
   const handleLocalDelete = async (event) => {
     await onDelete(event, localPost.post_id);
@@ -128,10 +127,30 @@ const PostDetail = ({
     }
   };
 
-  const renderComments = (parentId = null, depth = 0) => {
-    return comments
-      .filter((comment) => comment.parentid === parentId)
-      .map((comment) => (
+  const renderComments = () => {
+    const commentTree = [];
+    const commentMap = {};
+
+    // Construir un mapa de comentarios por id
+    comments.forEach((comment) => {
+      comment.children = [];
+      commentMap[comment.comment_id] = comment;
+    });
+
+    // Construir la estructura de árbol
+    comments.forEach((comment) => {
+      if (comment.parentid) {
+        // Si el comentario tiene un padre, añádelo como hijo de ese padre
+        commentMap[comment.parentid].children.push(comment);
+      } else {
+        // Si no tiene padre, es un comentario raíz
+        commentTree.push(comment);
+      }
+    });
+
+    // Renderizar el árbol de comentarios
+    const renderCommentBranch = (commentBranch, depth = 0) => {
+      return commentBranch.map((comment) => (
         <div
           key={comment.comment_id}
           className="comment"
@@ -169,8 +188,7 @@ const PostDetail = ({
               }}
               className="reply-button"
             >
-              <FaComment />{" "}
-              {(comment.respuestas && comment.respuestas.length) || 0}
+              <FaComment /> {(comment.children && comment.children.length) || 0}
             </button>
             <button
               onClick={() => handleDeleteComment(comment.comment_id)}
@@ -179,9 +197,13 @@ const PostDetail = ({
               <FaTrash />
             </button>
           </div>
-          {renderComments(comment.comment_id, depth + 1)}
+          {/* Renderizar las respuestas al comentario */}
+          {renderCommentBranch(comment.children, depth + 1)}
         </div>
       ));
+    };
+
+    return renderCommentBranch(commentTree);
   };
 
   return (

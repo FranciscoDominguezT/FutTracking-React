@@ -10,6 +10,7 @@ import {
   FaDownload,
   FaLink,
   FaChevronDown,
+  FaTrash
 } from "react-icons/fa";
 import { FaRegEnvelope } from "react-icons/fa6";
 import "./index.css";
@@ -51,7 +52,7 @@ const Main = () => {
       try {
         const videoResponse = await axios.get(`${API_BASE_URL}/videos/${videoId}`);
         console.log("Video data:", videoResponse.data);
-  
+
         setVideoData(videoResponse.data);
         setSelectedVideo(videoResponse.data);
         setLikes(videoResponse.data.likes);
@@ -77,7 +78,7 @@ const Main = () => {
         console.error("Error al obtener datos del video:", error.response?.data || error.message);
       }
     };
-  
+
     fetchVideoData();
   }, []);
 
@@ -158,19 +159,19 @@ const Main = () => {
       console.error('Error updating video likes:', error);
     }
   };
-  
+
 
   useEffect(() => {
     if (selectedVideo && Array.isArray(selectedVideo.likes)) {
       setLikes(selectedVideo.likes.length);
-      setLiked(selectedVideo.likes.includes(11)); 
+      setLiked(selectedVideo.likes.includes(11));
     } else {
       setLikes(0);
       setLiked(false); // O el valor por defecto que prefieras
     }
   }, [selectedVideo]);
-  
-  
+
+
 
 
   const handleCloseShareMenu = () => {
@@ -232,7 +233,7 @@ const Main = () => {
         console.error("Error fetching comments count:", error);
       }
     };
-  
+
     if (selectedVideo) {
       fetchCommentsCount();
     }
@@ -243,7 +244,7 @@ const Main = () => {
     try {
       const response = await axios.get(`${API_BASE_URL}/comments/${selectedVideo.id}`);
       console.log("Comentarios obtenidos:", response.data);
-      
+
       if (Array.isArray(response.data)) {
         setComments(response.data);
       } else {
@@ -253,75 +254,162 @@ const Main = () => {
       console.error("Error fetching comments:", error);
     }
   };
-  
+
+  useEffect(() => {
+    // Recuperar los likes almacenados en localStorage
+    const storedLikes = JSON.parse(localStorage.getItem('likedComments')) || {};
+    setLikedComments(storedLikes);
+  }, []);
+
+  useEffect(() => {
+    // Guardar los likes actuales en localStorage cada vez que cambie likedComments
+    localStorage.setItem('likedComments', JSON.stringify(likedComments));
+  }, [likedComments]);
 
 
   const handleCommentLike = async (commentId) => {
     try {
-      const response = await axios.post(`${API_BASE_URL}/comments/${commentId}/like`, { userid: currentUserId });
-      setComments(comments.map(c => c.id === commentId ? { ...c, likes: response.data.likes } : c));
-      setLikedComments(prev => ({ ...prev, [commentId]: response.data.likes }));
+      const response = await axios.post(`${API_BASE_URL}/comments/${commentId}/like`, { userid: 11 });
+      const updatedLikes = response.data.likes;
+
+      // Actualiza el estado de los comentarios
+      setComments(prevComments =>
+        prevComments.map(c =>
+          c.id === commentId ? { ...c, likes: updatedLikes } : c
+        )
+      );
+
+      // Actualiza el estado de likedComments
+      setLikedComments(prevLikedComments => ({
+        ...prevLikedComments,
+        [commentId]: !prevLikedComments[commentId] // Toggle like status
+      }));
     } catch (error) {
       console.error("Error updating comment likes:", error);
     }
   };
-  
-  
-  
 
-
-  const handleSubmitComment = async () => {
-    if (!newComment.trim()) return;
+  const handleDeleteComment = async (commentId) => {
     try {
-      const response = await axios.post(`${API_BASE_URL}/comments`, {
-        videoId: selectedVideo.id,
-        userId: 11, // Asume que tienes acceso al ID del usuario actual
-        content: newComment,
-        parentId: replyTo
-      });
-      setComments([response.data, ...comments]);
-      setNewComment("");
-      setReplyTo(null);
-      setCommentsCount(prev => prev + 1);
+      // Hacer la solicitud DELETE a la API
+      await axios.delete(`${API_BASE_URL}/comments/${commentId}`);
+      // Actualizar los comentarios filtrando el eliminado
+      setComments(comments.filter(comment => comment.id !== commentId));
     } catch (error) {
-      console.error("Error submitting comment:", error);
+      console.error("Error al eliminar el comentario:", error);
     }
   };
 
-  const renderComments = (parentId = null, level = 0) => {
-    if (!Array.isArray(comments)) return null;
-    const sortedComments = [...comments].sort((a, b) => new Date(a.fechacomentario) - new Date(b.fechacomentario));
+  const handleSubmitComment = async () => {
+    if (!newComment) {
+      console.error('No se puede enviar un comentario vacío');
+      return;
+    }
+  
+    try {
+      const response = await axios.post(`${API_BASE_URL}/comments/${selectedVideo.id}/comments`, {
+        usuarioid: currentUserId,
+        contenido: newComment,
+        parent_id: replyTo || null // Si es una respuesta
+      });
+  
+      // Actualiza la lista de comentarios con el nuevo comentario
+      setComments([...comments, response.data]);
+      setNewComment(''); // Limpia el campo de entrada
+    } catch (error) {
+      console.error('Error al publicar comentario:', error);
+    }
+  };
+  
+
+  const renderComments = (parentId = null) => {
+    // Ordenar comentarios por fecha de comentario
+    const sortedComments = [...comments].sort((a, b) => new Date(b.fechacomentario) - new Date(a.fechacomentario));
+
     return sortedComments
-        .filter(comment => comment.parent_id === parentId)
-        .map(comment => (
-            <div key={comment.id} className={`comment level-${level}`}>
-                <div className="comment-user-info">
-                    <img
-                        src={comment.avatar_url || "default-avatar.png"}
-                        alt={`${comment.nombre} ${comment.apellido}`}
-                        className="comment-user-profile-img"
-                    />
-                    <div className="comment-user-details">
-                        <p className="comment-user-name">
-                            {`${comment.nombre} ${comment.apellido}` || "Unknown User"}
-                        </p>
-                        <p className="comment-timestamp">{new Date(comment.fechacomentario).toLocaleString()}</p>
-                    </div>
-                </div>
-                <p className="comment-text">{comment.contenido}</p>
-                <div className="comment-stats">
-                    <button className="reply-button" onClick={() => handleReplyClick(comment.id)}>
-                        Responder
-                    </button>
-                    <div className="comment-like-icon" onClick={() => handleCommentLike(comment.id)}>
-                        <FaHeart className={likedComments[comment.id] ? "liked" : ""} />
-                        <span>{comment.likes}</span>
-                    </div>
-                </div>
-                {renderComments(comment.id, level + 1)}
+      .filter(comment => comment.parent_id === parentId)
+      .map(comment => {
+        const hasReplies = sortedComments.some(reply => reply.parent_id === comment.id);
+        const replies = sortedComments.filter(reply => reply.parent_id === comment.id);
+        const areRepliesVisible = visibleReplies[comment.id];
+
+        return (
+          <div key={comment.id} className="comment">
+            <div className="comment-user-info">
+              <img
+                src={comment.avatar_url || "default-avatar.png"}
+                alt="User Profile"
+                className="comment-user-profile-img"
+              />
+              <div className="comment-user-details">
+                <p className="comment-user-name">
+                  {comment.nombre || "Unknown"} {comment.apellido || "User"}
+                </p>
+                <p className="comment-timestamp">{new Date(comment.fechacomentario).toLocaleString()}</p>
+              </div>
             </div>
-        ));
-};
+            <p className="comment-text">{comment.contenido}</p>
+            <div className="comment-stats">
+              <button className="reply-button" onClick={() => setReplyTo(comment.id)}>
+                Responder
+              </button>
+              <div className="comment-like-icon" onClick={() => handleCommentLike(comment.id)}>
+                <FaHeart className={likedComments[comment.id] ? "liked" : ""} />
+                <span>{comment.likes}</span>
+              </div>
+              <div className="comment-delete-icon" onClick={() => handleDeleteComment(comment.id)}>
+              <FaTrash />
+              </div>
+            </div>
+            {hasReplies && (
+              <div>
+                {!areRepliesVisible && (
+                  <button className="view-replies-button" onClick={() => setVisibleReplies({ ...visibleReplies, [comment.id]: true })}>
+                    Ver Respuesta/s
+                  </button>
+                )}
+                {areRepliesVisible && (
+                  <div>
+                    {replies.map(reply => (
+                      <div key={reply.id} className="comment-reply">
+                        <img
+                          src={reply.avatar_url || "default-avatar.png"}
+                          alt="User Profile"
+                          className="comment-user-profile-img"
+                        />
+                        <p className="reply-user-name">
+                          <span>{reply.nombre || 'Unknown'} {reply.apellido || 'User'}</span>
+                          <FaPlay className="reply-icon" />
+                          <span>{comment.nombre || 'Unknown'} {comment.apellido || 'User'}</span>
+                        </p>
+                        <p className="comment-timestamp">{new Date(reply.fechacomentario).toLocaleString()}</p>
+                        <p className="comment-text">{reply.contenido}</p>
+                        <div className="comment-stats">
+                          <button className="reply-button" onClick={() => setReplyTo(reply.id)}>
+                            Responder
+                          </button>
+                          <div className="comment-like-icon" onClick={() => handleCommentLike(reply.id)}>
+                            <FaHeart className={likedComments[reply.id] ? "liked" : ""} />
+                            <span>{reply.likes}</span>
+                          </div>
+                          <div className="comment-delete-icon" onClick={() => handleDeleteComment(comment.id)}>
+                            <FaTrash />
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                    <button className="hide-replies-button" onClick={() => setVisibleReplies({ ...visibleReplies, [comment.id]: false })}>
+                      Ocultar Respuestas
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        );
+      });
+  };
+
 
 
   const formatTime = (time) => {
@@ -334,14 +422,14 @@ const Main = () => {
     <div className="image-container">
       {videoData && videoData.url ? (
         <video
-        ref={videoRef}
-        src={videoData.url}
-        className="player-img"
-        onClick={handleScreenClick}
-        onTimeUpdate={handleTimeUpdate}
-        controls={false}
-        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-      />      
+          ref={videoRef}
+          src={videoData.url}
+          className="player-img"
+          onClick={handleScreenClick}
+          onTimeUpdate={handleTimeUpdate}
+          controls={false}
+          style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+        />
       ) : (
         <p>Cargando video...</p>
       )}

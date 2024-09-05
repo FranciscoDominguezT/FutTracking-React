@@ -45,7 +45,7 @@ const Posteos = () => {
     try {
       const isLiked = likedPosts[postId];
       const response = await fetch(
-        `http://localhost:5001/api/posts/${postId}/like`, // Asegúrate de que postId esté aquí
+        `http://localhost:5001/api/posts/${postId}/like`,
         {
           method: "PUT",
         }
@@ -69,6 +69,7 @@ const Posteos = () => {
       console.error("Error updating likes:", error);
     }
   };
+  
   
   
   

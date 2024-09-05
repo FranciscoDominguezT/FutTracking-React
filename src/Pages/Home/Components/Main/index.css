@@ -349,11 +349,17 @@
 
 .comment-stats {
     display: flex;
-    justify-content: space-between;
     align-items: center;
     margin-top: 5px;
     padding-left: 2.8rem;
 }
+
+.comment-delete-icon {
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    padding-left: 1rem;
+  }
 
 .reply-button {
     background-color: transparent;
@@ -397,6 +403,7 @@
     display: flex;
     align-items: center;
     cursor: pointer;
+    margin-left: 13rem;
 }
 
 .comment-like-icon span {
