@@ -1,74 +1,117 @@
-import { FaGoogle } from "react-icons/fa";
-import { signInWithEmail, signInWithGoogle } from "../../Services/auth-service";
-import useForm from "../../Hooks/useForm";
-import { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-
-const initialState = {
-    email: '',
-    password: ''
-};
+import React, { useState } from "react";
+import axios from "axios";
+import { useNavigate } from "react-router-dom"; // Si usas react-router para la navegación
+import "./index.css";
+import logo from "./images/logo.png";
+import correoIcon from "./images/icons8-correo-48.png";
+import lockIcon from "./images/icons8-bloquear-50.png";
+import eyeIcon from "./images/icons8-visible-48.png";
+import googleIcon from "./images/icons8-logo-de-google-50.png";
+import instagramIcon from "./images/icons8-instagram-50.png";
+import linkedinIcon from "./images/icons8-linkedin-50.png";
 
 const Login = () => {
-    const { formValues, handleInputChange } = useForm(initialState);
-    const [error, setError] = useState(null);
-    const navigate = useNavigate();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [passwordVisible, setPasswordVisible] = useState(false);
+  const [error, setError] = useState("");
+  const navigate = useNavigate();
 
-    const handleSubmit = async (event) => {
-        event.preventDefault();
-        const { email, password } = formValues;
-        const { user, error } = await signInWithEmail(email, password);
-        if (error) {
-            console.error("Error en handleSubmit:", error);
-            setError(error);
-        } else {
-            console.log("Inicio de sesión exitoso:", user);
-            setError(null);
-            navigate('/home');
-        }
-    };
+  const togglePasswordVisibility = () => {
+    setPasswordVisible(!passwordVisible);
+  };
 
-    const handleLoginGoogle = async () => {
-        setError(null);
-        try {
-            const { data, error } = await signInWithGoogle();
-            if (error) throw error;
-            // La redirección será manejada por Supabase
-        } catch (error) {
-            console.error('Error durante el inicio de sesión con Google:', error);
-            setError("Ocurrió un error durante el inicio de sesión con Google. Por favor, intenta de nuevo.");
-        }
-    };
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    setError("");
 
-    return (
-        <div className="login-container">
-            <h2>Login</h2>
-            <form onSubmit={handleSubmit}>
-                <input 
-                    type="email" 
-                    name="email" 
-                    placeholder="Email" 
-                    value={formValues.email} 
-                    onChange={handleInputChange} 
-                    required 
-                />
-                <input 
-                    type="password" 
-                    name="password" 
-                    placeholder="Password" 
-                    value={formValues.password} 
-                    onChange={handleInputChange} 
-                    required 
-                />
-                <button type="submit">Login</button>
-            </form>
-            {error && <div className="error-message">{error}</div>}
-            <button onClick={handleLoginGoogle}>
-                <FaGoogle /> Login with Google
-            </button>
-            <Link to="/register">No estás registrado? Regístrate</Link>
+    // Validaciones básicas
+    if (!email || !password) {
+      setError("Por favor, ingrese todos los campos");
+      return;
+    }
+
+    try {
+      const response = await axios.post(
+        "http://localhost:5001/api/login/login",
+        { email, password }
+      );
+
+      // Guardar el token en el localStorage (puedes usar también Context o Redux)
+      localStorage.setItem("token", response.data.token);
+
+      // Redirigir a la pantalla principal
+      navigate("/home"); // Cambiado a navigate sin .push
+    } catch (error) {
+      setError("Credenciales inválidas. Intente nuevamente.");
+    }
+  };
+
+  return (
+    <div className="login-container">
+      <img src={logo} alt="Logo" className="logo" />
+      <h1>Iniciar sesión</h1>
+      <p className="register-text">
+        Si no tienes una cuenta, <a href="/register">regístrate aquí!</a>
+      </p>
+      {error && <p className="error-text">{error}</p>}
+      <form onSubmit={handleLogin}>
+        <div className="input-group">
+          <label htmlFor="email">Email</label>
+          <div className="input-wrapper">
+            <img src={correoIcon} alt="Email Icon" className="input-icon" />
+            <input
+              type="email"
+              id="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="Escribir tu correo electrónico"
+            />
+          </div>
         </div>
-    );
+        <div className="input-group">
+          <label htmlFor="password">Contraseña</label>
+          <div className="input-wrapper">
+            <img src={lockIcon} alt="Lock Icon" className="input-icon" />
+            <input
+              type={passwordVisible ? "text" : "password"}
+              id="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="Escribir tu contraseña"
+            />
+            <img
+              src={eyeIcon}
+              alt="Eye Icon"
+              className="input-icon-right"
+              onClick={togglePasswordVisibility}
+            />
+          </div>
+        </div>
+        <div className="options">
+          <label>
+            <input type="checkbox" /> Recuérdame
+          </label>
+          <a href="#">Olvidé mi contraseña</a>
+        </div>
+        <button type="submit" className="btn-login">
+          Ingresar
+        </button>
+        <p className="continue-text">O continúa con</p>
+        <div className="social-login">
+          <a href="#">
+            <img src={googleIcon} alt="Google" />
+          </a>
+          <a href="#">
+            <img src={instagramIcon} alt="Instagram" />
+          </a>
+          <a href="#">
+            <img src={linkedinIcon} alt="Apple" />
+          </a>
+        </div>
+      </form>
+    </div>
+  );
 };
 
 export default Login;

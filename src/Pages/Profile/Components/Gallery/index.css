@@ -1,3 +1,8 @@
+body{
+    overflow: hidden;
+}
+
+
 .gallery {
     display: flex;
     flex-wrap: wrap;
