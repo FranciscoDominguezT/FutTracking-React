@@ -1,4 +1,5 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useEffect, useRef } from 'react';
+import axios from 'axios';
 import {
   FaPlay,
   FaPause,
@@ -8,15 +9,14 @@ import {
   FaShareAlt,
   FaDownload,
   FaLink,
-  FaArrowLeft,
   FaChevronDown,
+  FaTrash,
+  FaArrowLeft
 } from "react-icons/fa";
-import supabase, {
-  getVideoData,
-  getVideoComments,
-} from "../../../../Configs/supabaseClient";
-import "./index.css";
 import { FaRegEnvelope } from "react-icons/fa6";
+import "./index.css";
+
+const API_BASE_URL = 'http://localhost:5001/api';
 
 const Gallery = () => {
   const [videos, setVideos] = useState([]);
@@ -33,9 +33,13 @@ const Gallery = () => {
   const [newComment, setNewComment] = useState("");
   const [lastClickTime, setLastClickTime] = useState(0);
   const [liked, setLiked] = useState(false);
+  const [replyTo, setReplyTo] = useState(null);
+  const [likedComments, setLikedComments] = useState({});
+  const [visibleReplies, setVisibleReplies] = useState({});
+  const [commentsCount, setCommentsCount] = useState(0);
+  const [isFollowing, setIsFollowing] = useState(false);
   const [liked3, setLiked3] = useState(false);
   const [repliesVisible, setRepliesVisible] = useState({});
-  const [replyTo, setReplyTo] = useState(null);
   const [profile, setProfile] = useState(null);
 
   const videoRef = useRef();
@@ -44,49 +48,41 @@ const Gallery = () => {
   const progressBarRef = useRef();
 
   useEffect(() => {
-    const fetchVideos = async () => {
+    const fetchVideo = async () => {
       try {
-        const response = await fetch('http://localhost:5001/api/userProfile/videos');
+        const response = await fetch('http://localhost:5001/api/userProfile/videos/3'); // Ajusta la ruta si es necesario
         if (!response.ok) {
-          console.log("Error fetching videos:", response.statusText);
+          console.log("Error fetching video:", response.statusText);
         }
         const data = await response.json();
-        setVideos(data);
+        setVideos(data);  // Aquí solo será un video
       } catch (error) {
-        console.error("Error fetching videos:", error);
+        console.error("Error fetching video:", error);
       }
     };
-    fetchVideos();
+    fetchVideo();
+  }, []);
 
+
+  useEffect(() => {
     const fetchProfile = async () => {
-      const { data, error } = await supabase
-        .from("perfil_jugadores")
-        .select(
-          `
-                    id,
-                    avatar_url,
-                    usuarios (
-                        nombre,
-                        apellido
-                    ),
-                    localidades (
-                        nombre,
-                        provincias (
-                            nombre,
-                            naciones (nombre)
-                        )
-                    )
-                `
-        )
-        .eq("usuario_id", 11)
-        .single();
-
-      if (error) {
+      try {
+        const response = await axios.get(`${API_BASE_URL}/profile/perfil`, {
+          params: { userId: 11 },
+        });
+  
+        const profileData = response.data;
+  
+        if (profileData) {
+          setProfile(profileData);
+        } else {
+          console.error("Error: No se encontró el perfil.");
+        }
+      } catch (error) {
         console.error("Error fetching profile:", error);
-      } else {
-        setProfile(data);
       }
     };
+  
     fetchProfile();
   }, []);
 
@@ -166,49 +162,52 @@ const Gallery = () => {
     setShowShareMenu(!showShareMenu);
   };
 
-  const handleCommentClick = async (e) => {
-    e.stopPropagation();
-    setShowCommentMenu(!showCommentMenu);
-
+  const handleCommentClick = async () => {
+    setShowCommentMenu(true);
     try {
-      const { data, error } = await supabase
-        .from("comentarios")
-        .select("id,contenido,fechacomentario,usuarioid")
-        .eq("videoid", selectedVideo.id);
+      const response = await axios.get(`${API_BASE_URL}/comments/${selectedVideo.id}`);
+      console.log("Comentarios obtenidos:", response.data);
 
-      if (error) {
-        throw error;
-      }
-
-      let prevComments = { user: null, text: null, replies: [] };
-      for (let i = 0; i < data.length; i++) {
-        const newComment = {
-          user: data[i].id,
-          text: data[i].contenido,
-          replies: [],
-        };
-        if (newComment !== prevComments) {
-          setComments((prevComments) => [...prevComments, newComment]);
-        }
-        if (newComment === prevComments) {
-          setComments(null);
-        }
+      if (Array.isArray(response.data)) {
+        setComments(response.data);
+      } else {
+        console.error("La respuesta no es un array:", response.data);
       }
     } catch (error) {
-      console.error("Error fetching comments:", error.message);
+      console.error("Error fetching comments:", error);
     }
   };
 
   const handleLikeClick = async () => {
-    const updatedLikes = liked3 ? likes - 1 : likes + 1;
+    try {
+      const response = await axios.post(`${API_BASE_URL}/videos/${selectedVideo.id}/like`);
+      setLikes(response.data.likes);
+      setLiked(response.data.liked);
+    } catch (error) {
+      console.error('Error updating video likes:', error);
+    }
+  };
 
-    const { data, error } = await supabase
-      .from("videos")
-      .update({ likes: updatedLikes })
-      .eq("id", selectedVideo.id);
+  const handleCommentLike = async (commentId) => {
+    try {
+      const response = await axios.post(`${API_BASE_URL}/comments/${commentId}/like`, { userid: 11 });
+      const updatedLikes = response.data.likes;
 
-    setLikes(updatedLikes);
-    setLiked3(!liked3);
+      // Actualiza el estado de los comentarios
+      setComments(prevComments =>
+        prevComments.map(c =>
+          c.id === commentId ? { ...c, likes: updatedLikes } : c
+        )
+      );
+
+      // Actualiza el estado de likedComments
+      setLikedComments(prevLikedComments => ({
+        ...prevLikedComments,
+        [commentId]: !prevLikedComments[commentId] // Toggle like status
+      }));
+    } catch (error) {
+      console.error("Error updating comment likes:", error);
+    }
   };
 
   const handleCloseShareMenu = () => {
@@ -218,6 +217,22 @@ const Gallery = () => {
   const handleCloseCommentMenu = () => {
     setShowCommentMenu(false);
   };
+
+  useEffect(() => {
+    const fetchCommentsCount = async () => {
+      try {
+        const response = await axios.get(`${API_BASE_URL}/comments/${selectedVideo.id}/countComments`);
+        setCommentsCount(response.data.count);
+        console.log("Comments count es igual a",commentsCount)
+      } catch (error) {
+        console.error("Error fetching comments count:", error);
+      }
+    };
+
+    if (selectedVideo) {
+      fetchCommentsCount();
+    }
+  }, [selectedVideo]);
 
   const handleDownload = () => {
     if (videoData && videoData.url) {
@@ -247,6 +262,37 @@ const Gallery = () => {
     setIsDragging(true);
     handleProgressClick(e);
   };
+  const handleFollowToggle = async () => {
+    if (!selectedVideo ) return;
+    try {
+        // Hacer una solicitud POST al servidor para cambiar el estado de seguimiento
+        const response = await axios.post(`${API_BASE_URL}/videos/11/${selectedVideo.usuarioid}/followChange`);
+        console.log("Siguiendo es igual a", response.data.isFollowing);
+        // Actualizar el estado basado en la respuesta
+        setIsFollowing(response.data.isFollowing);
+        console.log("Siguiendo es igual a", response.data.isFollowing);
+    } catch (error) {
+        console.error("Error toggling follow status:", error);
+        
+    }
+};
+useEffect(() => {
+  const fetchFollow = async () => {
+    try {
+      const response = await axios.get(`${API_BASE_URL}/videos/11/${selectedVideo.usuarioid}/follow`);
+      console.log("Esto es asi", response.data);
+      // Extrae isFollowing del objeto de respuesta
+      setIsFollowing(response.data.isFollowing);
+      console.log("Siguiendo es igual a ", response.data.isFollowing);
+    } catch (error) {
+      console.error("Error fetching follow status:", error);
+    }
+  };
+
+  if (selectedVideo) {
+    fetchFollow();
+  }
+}, [selectedVideo]);
 
   const handleMouseMove = (e) => {
     if (isDragging) {
@@ -258,26 +304,45 @@ const Gallery = () => {
     setIsDragging(false);
   };
 
-  const handlePostComment = () => {
-    if (newComment.trim()) {
-      if (replyTo !== null) {
-        const updatedComments = [...comments];
-        updatedComments[replyTo].replies.push({ user: 'Tú', text: newComment, timestamp: new Date(), likes: 0 });
-        setComments(updatedComments);
-        setReplyTo(null);
-      } else {
-        setComments([...comments, { user: 'Tú', text: newComment, replies: [], timestamp: new Date(), likes: 0 }]);
-      }
-      setNewComment("");
+  useEffect(() => {
+    // Recuperar los likes almacenados en localStorage
+    const storedLikes = JSON.parse(localStorage.getItem('likedComments')) || {};
+    setLikedComments(storedLikes);
+  }, []);
+
+  useEffect(() => {
+    // Guardar los likes actuales en localStorage cada vez que cambie likedComments
+    localStorage.setItem('likedComments', JSON.stringify(likedComments));
+  }, [likedComments]);
+
+  const handleSubmitComment = async () => {
+    if (!newComment) {
+      console.error('No se puede enviar un comentario vacío');
+      return;
+    }
+
+    try {
+      const response = await axios.post(`${API_BASE_URL}/comments/${selectedVideo.id}/comments`, {
+        usuarioid: 11, // Usar el ID del usuario, reemplazar con el correcto
+        contenido: newComment,
+        parent_id: replyTo || null 
+      });
+
+      setComments([...comments, response.data]);
+      setNewComment('');
+    } catch (error) {
+      console.error('Error al publicar comentario:', error);
     }
   };
 
-  const handleReplyClick = (index) => {
-    const replyText = prompt("Escribí tu respuesta:");
-    if (replyText && replyText.trim()) {
-      const updatedComments = [...comments];
-      updatedComments[index].replies.push({ user: "Tú", text: replyText });
-      setComments(updatedComments);
+  const handleDeleteComment = async (commentId) => {
+    try {
+      // Hacer la solicitud DELETE a la API
+      await axios.delete(`${API_BASE_URL}/comments/${commentId}`);
+      // Actualizar los comentarios filtrando el eliminado
+      setComments(comments.filter(comment => comment.id !== commentId));
+    } catch (error) {
+      console.error("Error al eliminar el comentario:", error);
     }
   };
 
@@ -287,41 +352,114 @@ const Gallery = () => {
     return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
   };
 
-  const formatTimestamp = (timestamp) => {
-    const now = new Date();
-    const diff = Math.floor((now - new Date(timestamp)) / 1000);
-    if (diff < 60) return `${diff} s`;
-    if (diff < 3600) return `${Math.floor(diff / 60)} min`;
-    if (diff < 86400) return `${Math.floor(diff / 3600)} h`;
-    return `${Math.floor(diff / 86400)} d`;
-  };
-
   const handleVideoClick = async (video) => {
     setSelectedVideo(video);
-    const videoData = await getVideoData(video.id);
-    setLikes(videoData.likes || 0);
+    try {
+      const videoData = await fetch(`http://localhost:5001/api/videos/${video.id}`);
+      if (!videoData.ok) {
+        console.log("Error fetching video data:", videoData.statusText);
+        return;
+      }
+      const data = await videoData.json();
+      setLikes(data.likes || 0);
+      // Puedes actualizar más campos según lo que te devuelva el backend
+    } catch (error) {
+      console.error("Error fetching video data:", error);
+    }
   };
 
   const handleCloseVideo = () => {
     setSelectedVideo(null);
   };
 
-  const handleCommentLike = (commentIndex, replyIndex) => {
-    const updatedComments = [...comments];
-    if (replyIndex !== undefined) {
-      const reply = updatedComments[commentIndex].replies[replyIndex];
-      reply.liked = !reply.liked;
-      reply.likes += reply.liked ? 1 : -1;
-    } else {
-      const comment = updatedComments[commentIndex];
-      comment.liked = !comment.liked;
-      comment.likes += comment.liked ? 1 : -1;
-    }
-    setComments(updatedComments);
-  };
+  const renderComments = (parentId = null) => {
+    // Ordenar comentarios por fecha de comentario
+    const sortedComments = [...comments].sort((a, b) => new Date(b.fechacomentario) - new Date(a.fechacomentario));
 
-  const toggleReplies = (index) => {
-    setRepliesVisible((prev) => ({ ...prev, [index]: !prev[index] }));
+
+    return sortedComments
+      .filter(comment => comment.parent_id === parentId)
+      .map(comment => {
+        const hasReplies = sortedComments.some(reply => reply.parent_id === comment.id);
+        const replies = sortedComments.filter(reply => reply.parent_id === comment.id);
+        const areRepliesVisible = visibleReplies[comment.id];
+
+
+        return (
+          <div key={comment.id} className="comment">
+            <div className="comment-user-info">
+              <img
+                src={comment.avatar_url || "default-avatar.png"}
+                alt="User Profile"
+                className="comment-user-profile-img"
+              />
+              <div className="comment-user-details">
+                <p className="comment-user-name">
+                  {comment.nombre || "Unknown"} {comment.apellido || "User"}
+                </p>
+                <p className="comment-timestamp">{new Date(comment.fechacomentario).toLocaleString()}</p>
+              </div>
+            </div>
+            <p className="comment-text">{comment.contenido}</p>
+            <div className="comment-stats">
+              <button className="reply-button" onClick={() => setReplyTo(comment.id)}>
+                Responder
+              </button>
+              <div className="comment-like-icon" onClick={() => handleCommentLike(comment.id)}>
+                  <FaHeart className={likedComments[comment.id] ? "liked" : ""} />
+                  <span>{comment.likes}</span>
+              </div>
+              <div className="comment-delete-icon" onClick={() => handleDeleteComment(comment.id)}>
+              <FaTrash />
+              </div>
+            </div>
+            {hasReplies && (
+              <div>
+                {!areRepliesVisible && (
+                  <button className="view-replies-button" onClick={() => setVisibleReplies({ ...visibleReplies, [comment.id]: true })}>
+                    Ver Respuesta/s
+                  </button>
+                )}
+                {areRepliesVisible && (
+                  <div>
+                    {replies.map(reply => (
+                      <div key={reply.id} className="comment-reply">
+                        <img
+                          src={reply.avatar_url || "default-avatar.png"}
+                          alt="User Profile"
+                          className="comment-user-profile-img"
+                        />
+                        <p className="reply-user-name">
+                          <span>{reply.nombre || 'Unknown'} {reply.apellido || 'User'}</span>
+                          <FaPlay className="reply-icon" />
+                          <span>{comment.nombre || 'Unknown'} {comment.apellido || 'User'}</span>
+                        </p>
+                        <p className="comment-timestamp">{new Date(reply.fechacomentario).toLocaleString()}</p>
+                        <p className="comment-text">{reply.contenido}</p>
+                        <div className="comment-stats">
+                          <button className="reply-button" onClick={() => setReplyTo(reply.id)}>
+                            Responder
+                          </button>
+                          <div className="comment-like-icon" onClick={() => handleCommentLike(reply.id)}>
+                          <FaHeart className={likedComments[reply.id] ? "liked" : ""} />
+                              <span>{reply.likes}</span>
+                          </div>
+                          <div className="comment-delete-icon" onClick={() => handleDeleteComment(comment.id)}>
+                            <FaTrash />
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                    <button className="hide-replies-button" onClick={() => setVisibleReplies({ ...visibleReplies, [comment.id]: false })}>
+                      Ocultar Respuestas
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        );
+      });
   };
 
   return (
@@ -394,26 +532,25 @@ const Gallery = () => {
                   />
                   <div className="details-user">
                     <p className="username">
-                      {profile.usuarios.nombre} {profile.usuarios.apellido}
+                    {profile.nombre} {profile.apellido}
                     </p>
                     <p className="userlocation">
-                      {profile.localidades.nombre},{" "}
-                      {profile.localidades.provincias.nombre},{" "}
-                      {profile.localidades.provincias.naciones.nombre}
+                    {profile.localidad_nombre}, {profile.provincia_nombre}, {profile.nacion_nombre}
                     </p>
                   </div>
                 </>
               )}
-              <button className="follow-button">Siguiendo</button>
-            </div>
+            <button className="follow-button" onClick={handleFollowToggle}>
+            {isFollowing ? "Siguiendo" : "Seguir"}
+            </button>                    </div>
             <div className="estats">
               <div
                 className="estat"
                 onClick={handleLikeClick}
                 style={{ cursor: "pointer" }}
               >
-                <FaHeart className={`estat-icon ${liked3 ? "liked" : ""}`} />
-                <span>{liked3 ? likes + 1 : likes}</span>
+               <FaHeart className={`stat-icon ${liked ? "liked" : ""}`} />
+              <span>{likes}</span>
               </div>
               <div
                 className="estat"
@@ -421,7 +558,7 @@ const Gallery = () => {
                 style={{ cursor: "pointer" }}
               >
                 <FaComment className="estat-icon" />
-                <span>{comments.length}</span>
+                <span>{commentsCount}</span>
               </div>
               <div className="estat">
                 <FaEye className="estat-icon" />
@@ -507,135 +644,31 @@ const Gallery = () => {
               </div>
             )}
             {showCommentMenu && (
-              <div
-                className="menu-comment"
-                ref={commentMenuRef}
-                onClick={(e) => e.stopPropagation()}
-              >
-                <p className="title-comment">Comentarios</p>
-                <div className="section-comment">
-                  {comments.map((comment, index) => (
-                    <div key={index} className="coment">
-                      <div className="info-comment-user">
-                        <img
-                          src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTjDM0PhKJ_GdWFpZd6zUh3lENRBqkScnZ4Cg&s"
-                          alt="User Profile"
-                          className="img-comment-user-profile"
-                        />
-                        <div className="details-comment-user">
-                          <p className="name-comment-user">{comment.user}</p>
-                          <p className="timestamp-comment">
-                            {formatTimestamp(comment.timestamp)}
-                          </p>
-                        </div>
-                      </div>
-                      <p className="text-comment">{comment.text}</p>
-                      <div className="stats-comment">
-                        <button
-                          className="button-reply"
-                          onClick={() => handleReplyClick(index)}
-                        >
-                          Responder
-                        </button>
-                        <div
-                          className="icon-like-comment"
-                          onClick={() => handleCommentLike(index)}
-                        >
-                          <FaHeart className={comment.liked3 ? "liked" : ""} />
-                          <span>{comment.likes}</span>
-                        </div>
-                      </div>
-                      {comment.replies && comment.replies.length > 0 && (
-                        <>
-                          <button
-                            className="replies-button-view"
-                            onClick={() => toggleReplies(index)}
-                          >
-                            {comment.showReplies
-                              ? "Ocultar respuestas"
-                              : `Ver ${comment.replies.length} respuestas`}{" "}
-                            <FaChevronDown />
-                          </button>
-                          {comment.showReplies && (
-                            <div className="replis">
-                              {comment.replies.map((reply, replyIndex) => (
-                                <div key={replyIndex} className="coment reply">
-                                  <div className="info-comment-user">
-                                    <img
-                                      src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTjDM0PhKJ_GdWFpZd6zUh3lENRBqkScnZ4Cg&s"
-                                      alt="User Profile"
-                                      className="img-comment-user-profile"
-                                    />
-                                    <div className="details-comment-user">
-                                      <p className="name-comment-user">
-                                        {reply.user}
-                                      </p>
-                                      <p className="timestamp-comment">
-                                        {formatTimestamp(reply.timestamp)}
-                                      </p>
-                                    </div>
-                                  </div>
-                                  <p className="text-comment">{reply.text}</p>
-                                  <div className="stats-comment">
-                                    <button
-                                      className="button-reply"
-                                      onClick={() => handleReplyClick(index)}
-                                    >
-                                      Responder
-                                    </button>
-                                    <div
-                                      className="icon-like-comment"
-                                      onClick={() =>
-                                        handleCommentLike(index, replyIndex)
-                                      }
-                                    >
-                                      <FaHeart
-                                        className={reply.liked3 ? "liked" : ""}
-                                      />
-                                      <span>{reply.likes}</span>
-                                    </div>
-                                  </div>
-                                </div>
-                              ))}
-                            </div>
-                          )}
-                        </>
-                      )}
-                    </div>
-                  ))}
-                </div>
-                <div className="comment-wrapper-input">
-                  <input
-                    type="text"
-                    className="input-comment"
-                    value={newComment}
-                    onChange={(e) => setNewComment(e.target.value)}
-                    placeholder={
-                      replyTo !== null
-                        ? "Responde al comentario..."
-                        : "Escribí tu respuesta"
-                    }
-                  />
-                  <button
-                    className="button-comment-send"
-                    onClick={handlePostComment}
-                  >
-                    Enviar
-                  </button>
-                </div>
-                <button
-                  className="button-comment-send"
-                  onClick={handleCloseCommentMenu}
-                >
-                  Cancelar
-                </button>
-              </div>
+          <div className="comment-menu" ref={commentMenuRef} onClick={(e) => e.stopPropagation()}>
+            <p className="comment-title">Comentarios</p>
+            <div className="comment-section">
+              {renderComments()}
+            </div>
+            <div className="comment-input-wrapper">
+              <input
+                type="text"
+                className="comment-input"
+                value={newComment}
+                onChange={(e) => setNewComment(e.target.value)}
+                placeholder={replyTo !== null ? "Responde al comentario..." : "Escribí tu respuesta"}
+              />
+              <button className="comment-send-button" onClick={handleSubmitComment}>
+                Enviar
+              </button>
+            </div>
+            <button className="cancel-button" onClick={handleCloseCommentMenu}>
+              Cancelar
+            </button>
+            </div>
             )}
-          </div>
         </div>
-      )}
-    </div>
-  );
-};
-
+      </div>
+    )}
+  </div>
+)}
 export default Gallery;
