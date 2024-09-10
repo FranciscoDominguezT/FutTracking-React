@@ -7,9 +7,15 @@ body{
     display: flex;
     flex-wrap: wrap;
     gap: 10px;
+    padding-left: 16.2rem;
     min-height: 597px;
 }
 
+
+.gallery p{
+    margin-top: 15rem;
+    color: black;
+}
 
 .gallery-item {
     width: 90%;

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import axios from "axios";
-import { useNavigate } from "react-router-dom"; // Si usas react-router para la navegación
+import { useNavigate } from "react-router-dom"; 
 import "./index.css";
 import logo from "./images/logo.png";
 import correoIcon from "./images/icons8-correo-48.png";
@@ -9,6 +9,7 @@ import eyeIcon from "./images/icons8-visible-48.png";
 import googleIcon from "./images/icons8-logo-de-google-50.png";
 import instagramIcon from "./images/icons8-instagram-50.png";
 import linkedinIcon from "./images/icons8-linkedin-50.png";
+import BackgroundAnimation from "./Components/Animation/Animation"; // Importar la animación
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -25,7 +26,6 @@ const Login = () => {
     e.preventDefault();
     setError("");
 
-    // Validaciones básicas
     if (!email || !password) {
       setError("Por favor, ingrese todos los campos");
       return;
@@ -37,11 +37,8 @@ const Login = () => {
         { email, password }
       );
 
-      // Guardar el token en el localStorage (puedes usar también Context o Redux)
       localStorage.setItem("token", response.data.token);
-
-      // Redirigir a la pantalla principal
-      navigate("/home"); // Cambiado a navigate sin .push
+      navigate("/home");
     } catch (error) {
       setError("Credenciales inválidas. Intente nuevamente.");
     }
@@ -49,6 +46,7 @@ const Login = () => {
 
   return (
     <div className="login-container">
+      <BackgroundAnimation /> {/* Añadir la animación aquí */}
       <img src={logo} alt="Logo" className="logo" />
       <h1>Iniciar sesión</h1>
       <p className="register-text">

@@ -5,27 +5,41 @@ import "./index.css";
 const ProfileInfo = ({ onEditClick }) => {
     const [profile, setProfile] = useState(null);
     const [followersCount, setFollowersCount] = useState(0);
-    const navigate = useNavigate(); // Hook para navegación
+    const navigate = useNavigate();
 
     useEffect(() => {
         const fetchProfile = async () => {
             try {
-                const response = await fetch('http://localhost:5001/api/profile/profile'); // Asegúrate de que esta URL coincida con tu configuración
+                // Obtener el token desde el localStorage
+                const token = localStorage.getItem('token');
+
+                if (!token) {
+                    navigate('/login'); // Redirigir a login si no hay token
+                    return;
+                }
+
+                const response = await fetch('http://localhost:5001/api/profile/profile', {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}` // Agregar el token al header
+                    }
+                });
+
                 const data = await response.json();
 
                 if (response.ok) {
                     setProfile(data.profile);
                     setFollowersCount(data.followersCount);
                 } else {
-                    console.error("Error fetching data:", data.error);
+                    console.error("Error fetching profile:", data.error);
                 }
             } catch (error) {
-                console.error("Error fetching data:", error);
+                console.error("Error fetching profile:", error);
             }
         };
 
         fetchProfile();
-    }, []);
+    }, [navigate]);
 
     if (!profile) {
         return <div>Loading...</div>;
@@ -42,12 +56,12 @@ const ProfileInfo = ({ onEditClick }) => {
             </div>
             <button 
                 className="edit-button"
-                onClick={() => onEditClick()} // Llama a la función proporcionada como prop
+                onClick={() => onEditClick()}
             >
                 Editar
             </button>
         </div>
     );
-}
+};
 
 export default ProfileInfo;
