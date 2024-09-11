@@ -64,7 +64,7 @@ const Login = () => {
   return (
     <div className="login-container">
       <BackgroundAnimation /> {/* Añadir la animación aquí */}
-      <img src={logo} alt="Logo" className="logo" />
+      <img src={logo} alt="Logo" className="logoYY" />
       <h1>Iniciar sesión</h1>
       <p className="register-text">
         Si no tienes una cuenta, <a href="/register">regístrate aquí!</a>
@@ -81,6 +81,7 @@ const Login = () => {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="Escribir tu correo electrónico"
+              autoComplete="off"
             />
           </div>
         </div>

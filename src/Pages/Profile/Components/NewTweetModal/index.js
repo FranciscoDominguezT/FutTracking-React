@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import supabase from '../../../../Configs/supabaseClient';
 import './index.css';
 
 const NewTweetModal = ({ isOpen, onClose, onTweetCreated }) => {
@@ -8,51 +7,61 @@ const NewTweetModal = ({ isOpen, onClose, onTweetCreated }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!content.trim()) return;
-
+  
     try {
-      const { data, error } = await supabase
-        .from('posteos')
-        .insert([
-          { 
-            usuarioid: 11, // Asumiendo que el ID del usuario actual es 11
-            contenido: content,
-            fechapublicacion: new Date().toISOString(),
-            likes: 0
-          }
-        ])
-        .select();
-
-      if (error) throw error;
+      const token = localStorage.getItem('token');
       
-      // Fetch the user data for the new tweet
-      const { data: userData, error: userError } = await supabase
-        .from('usuarios')
-        .select(`
-          id,
-          nombre,
-          apellido,
-          perfil_jugadores (
-            avatar_url
-          )
-        `)
-        .eq('id', 11)
-        .single();
-
-      if (userError) throw userError;
-
+      // Obtener los datos del usuario ANTES de crear el tweet
+      const userResponse = await fetch('http://localhost:5001/api/user/userdata', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+  
+      if (!userResponse.ok) {
+        throw new Error('Error fetching user data');
+      }
+  
+      const userData = await userResponse.json();
+  
+      // Crear el nuevo post
+      const response = await fetch('http://localhost:5001/api/posts', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          contenido: content,
+          usuario_id: userData.usuario_id,  // Asigna el usuario logueado al post
+          nombre: userData.nombre,
+          apellido: userData.apellido,
+          avatar_url: userData.avatar_url
+        })
+      });
+  
+      if (!response.ok) {
+        throw new Error('Error creating tweet');
+      }
+  
+      const newTweet = await response.json();
+  
+      // Añadir los datos del usuario al nuevo tweet antes de enviarlo al frontend
       const newTweetWithUserData = {
-        ...data[0],
-        usuarios: userData,
-        respuestas_posteos: [{ count: 0 }]
+        ...newTweet,
+        nombre: userData.nombre,
+        apellido: userData.apellido,
+        avatar_url: userData.avatar_url
       };
-
+  
       onTweetCreated(newTweetWithUserData);
       setContent('');
       onClose();
     } catch (error) {
-      console.error("Error creating tweet:", error);
+      console.error('Error creating tweet:', error);
     }
   };
+  
 
   if (!isOpen) return null;
 

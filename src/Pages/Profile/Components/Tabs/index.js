@@ -1,12 +1,9 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useEffect, useRef } from "react";
 import './index.css';
 
-
-const Tabs = ({ onTabChange }) => {
-    const [activeTab, setActiveTab] = useState('Videos');
-    const [tabPosition, setTabPosition] = useState(0);
+const Tabs = ({ activeTab, onTabChange }) => {
+    const [tabPosition, setTabPosition] = React.useState(0);
     const tabRefs = useRef([]);
-
 
     useEffect(() => {
         const activeTabElement = tabRefs.current.find(tab => tab.dataset.tab === activeTab);
@@ -15,12 +12,9 @@ const Tabs = ({ onTabChange }) => {
         }
     }, [activeTab]);
 
-
-    const handleTabClick = (tab, index) => {
-        setActiveTab(tab);
+    const handleTabClick = (tab) => {
         onTabChange(tab);
     };
-
 
     return (
         <div className="tabs">
@@ -31,7 +25,7 @@ const Tabs = ({ onTabChange }) => {
                     data-tab={tab}
                     ref={el => tabRefs.current[index] = el}
                     className={`tab ${activeTab === tab ? 'active' : ''}`}
-                    onClick={() => handleTabClick(tab, index)}
+                    onClick={() => handleTabClick(tab)}
                 >
                     {tab}
                 </button>
@@ -39,6 +33,5 @@ const Tabs = ({ onTabChange }) => {
         </div>
     );
 }
-
 
 export default Tabs;

@@ -41,6 +41,7 @@ const Gallery = () => {
   const [liked3, setLiked3] = useState(false);
   const [repliesVisible, setRepliesVisible] = useState({});
   const [profile, setProfile] = useState(null);
+  const [videoOwner, setVideoOwner] = useState(null);
 
   const videoRef = useRef();
   const shareMenuRef = useRef();
@@ -367,14 +368,17 @@ useEffect(() => {
   const handleVideoClick = async (video) => {
     setSelectedVideo(video);
     try {
-      const videoData = await fetch(`http://localhost:5001/api/videos/${video.id}`);
+      const videoData = await fetch(`${API_BASE_URL}/videos/${video.id}`);
       if (!videoData.ok) {
         console.log("Error fetching video data:", videoData.statusText);
         return;
       }
       const data = await videoData.json();
       setLikes(data.likes || 0);
-      // Puedes actualizar más campos según lo que te devuelva el backend
+      
+      // Fetch video owner information
+      const ownerResponse = await axios.get(`${API_BASE_URL}/user/${video.usuarioid}`);
+      setVideoOwner(ownerResponse.data);
     } catch (error) {
       console.error("Error fetching video data:", error);
     }
@@ -539,19 +543,19 @@ useEffect(() => {
               </div>
             </div>
             <div className="info-user">
-              {profile && (
+              {videoOwner && (
                 <>
                   <img
-                    src={profile.avatar_url}
+                    src={videoOwner.avatar_url || "default-avatar.png"}
                     alt="Usuario"
                     className="img-user-profile"
                   />
                   <div className="details-user">
                     <p className="username">
-                    {profile.nombre} {profile.apellido}
+                      {videoOwner.nombre} {videoOwner.apellido}
                     </p>
                     <p className="userlocation">
-                    {profile.localidad_nombre}, {profile.provincia_nombre}, {profile.nacion_nombre}
+                      {videoOwner.localidad}, {videoOwner.provincia}, {videoOwner.nacion}
                     </p>
                   </div>
                 </>

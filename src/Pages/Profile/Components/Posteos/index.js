@@ -12,6 +12,8 @@ const Posteos = () => {
   const [selectedPost, setSelectedPost] = useState(null);
   const [isCommentModalOpen, setIsCommentModalOpen] = useState(false);
   const [selectedPostId, setSelectedPostId] = useState(null);
+  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
+  const [postToDelete, setPostToDelete] = useState(null);
 
   useEffect(() => {
     fetchPosts();
@@ -23,8 +25,8 @@ const Posteos = () => {
       const token = localStorage.getItem("token");
       const response = await fetch("http://localhost:5001/api/posts", {
         headers: {
-          'Authorization': `Bearer ${token}`
-        }
+          Authorization: `Bearer ${token}`,
+        },
       });
       const data = await response.json();
       console.log("Posts cargados:", data);
@@ -56,18 +58,18 @@ const Posteos = () => {
         }
       );
       const data = await response.json();
-  
+
       setPosts(
         posts.map((post) =>
           post.post_id === postId ? { ...post, likes: data.likes } : post
         )
       );
-  
+
       const newLikedPosts = {
         ...likedPosts,
         [postId]: !isLiked,
       };
-  
+
       setLikedPosts(newLikedPosts);
       saveLikedPosts(newLikedPosts);
     } catch (error) {
@@ -75,54 +77,41 @@ const Posteos = () => {
     }
   };
 
-  const handleDeleteTweet = async (event, postId) => {
-    event.stopPropagation();
-
+  const handleDeleteTweet = async (postId) => {
     if (!postId || typeof postId !== "number") {
       console.error("Error: postId no está definido o es inválido.", postId);
-      alert(
-        "No se puede eliminar el tweet porque el ID es indefinido o inválido."
-      );
       return;
     }
 
-    if (window.confirm("¿Estás seguro de que quieres eliminar este tweet?")) {
-      try {
-        const response = await fetch(
-          `http://localhost:5001/api/posts/${postId}`,
-          {
-            method: "DELETE",
-          }
-        );
+    try {
+      const response = await fetch(`http://localhost:5001/api/posts/${postId}`, {
+        method: "DELETE",
+      });
 
-        if (response.ok) {
-          // Asegúrate de que aquí uses `post.post_id` para comparar y actualizar correctamente el estado
-          setPosts((prevPosts) =>
-            prevPosts.filter((post) => post.post_id !== postId)
-          );
-          setSelectedPost(null);
-        } else {
-          const errorText = await response.text();
-          console.error("Error al eliminar el post. Respuesta:", errorText);
-          alert(
-            "Hubo un error al eliminar el tweet. Por favor, intenta de nuevo."
-          );
-        }
-      } catch (error) {
-        console.error("Error al eliminar el tweet:", error);
-        alert(
-          "Hubo un error al eliminar el tweet. Por favor, intenta de nuevo."
+      if (response.ok) {
+        setPosts((prevPosts) =>
+          prevPosts.filter((post) => post.post_id !== postId)
         );
+        setSelectedPost(null);
+        setIsConfirmModalOpen(false); // Cerrar el modal después de eliminar
+      } else {
+        const errorText = await response.text();
+        console.error("Error al eliminar el post. Respuesta:", errorText);
       }
+    } catch (error) {
+      console.error("Error al eliminar el tweet:", error);
     }
   };
 
+  const openConfirmModal = (event, postId) => {
+    event.stopPropagation();
+    console.log("Abriendo modal para el post:", postId);
+    setPostToDelete(postId);
+    setIsConfirmModalOpen(true);
+  };
+
   const handleTweetCreated = (newTweet) => {
-    // Añade el nuevo tweet al inicio de la lista
-    setPosts((prevPosts) => [
-      { ...newTweet, post_id: newTweet.id },
-      ...prevPosts,
-    ]);
+    setPosts((prevPosts) => [{ ...newTweet, post_id: newTweet.id }, ...prevPosts]);
   };
 
   const handlePostClick = (post) => {
@@ -155,7 +144,7 @@ const Posteos = () => {
         onClose={() => setIsModalOpen(false)}
         onTweetCreated={handleTweetCreated}
       />
-      {posts.map((post, index) => (
+      {posts.map((post) => (
         <div
           key={post.post_id}
           className="post"
@@ -169,13 +158,11 @@ const Posteos = () => {
               className="user-avatar"
             />
             <div className="dxd">
-              <h3>
-                {post.nombre || "Unknown"} {post.apellido || "User"}
-              </h3>
+              <h3>{post.nombre || "Unknown"} {post.apellido || "User"}</h3>
               <p>{new Date(post.fechapublicacion).toLocaleString()}</p>
             </div>
             <button
-              onClick={(event) => handleDeleteTweet(event, post.post_id)}
+              onClick={(event) => openConfirmModal(event, post.post_id)}
               className="delete-button"
             >
               <FaTrash />
@@ -185,9 +172,7 @@ const Posteos = () => {
           <div className="post-footerA">
             <button
               onClick={(event) => handleLike(event, post.post_id)}
-              className={`ytr-button ${
-                likedPosts[post.post_id] ? "liked" : ""
-              }`}
+              className={`ytr-button ${likedPosts[post.post_id] ? "liked" : ""}`}
             >
               <FaHeart className="ytr" /> {post.likes || 0}
             </button>
@@ -200,6 +185,7 @@ const Posteos = () => {
           </div>
         </div>
       ))}
+
       {selectedPost && (
         <PostDetail
           post={selectedPost}
@@ -210,6 +196,7 @@ const Posteos = () => {
           fetchPosts={fetchPosts}
         />
       )}
+
       {isCommentModalOpen && selectedPostId && (
         <NewCommentModal
           isOpen={isCommentModalOpen}
@@ -217,6 +204,28 @@ const Posteos = () => {
           postId={selectedPostId}
           onCommentCreated={handleCommentCreated}
         />
+      )}
+
+      {isConfirmModalOpen && (
+        <div className="confirm-modal open">
+          <div className="confirm-modal-content">
+            <h3>¿Estás seguro de que deseas eliminar este post?</h3>
+            <div className="confirm-modal-buttons">
+              <button
+                onClick={() => setIsConfirmModalOpen(false)}
+                className="cancel-button"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={() => handleDeleteTweet(postToDelete)}
+                className="delete-confirm-button"
+              >
+                Eliminar
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

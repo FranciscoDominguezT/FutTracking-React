@@ -16,26 +16,28 @@
 
 .login-container {
     margin: 0;
-    padding: 0;
+    padding: 0 20px;
+    box-sizing: border-box;
     font-family: 'Arial', sans-serif;
     background-color: #0a1e2b;
     color: white;
     display: flex;
     flex-direction: column;
-    justify-content: center;
-    align-items: center;
     height: 100vh;
     overflow: hidden;
+    position: relative;
+    z-index: 1; /* Añadido */
 }
 
 
-.logo {
+.logoYY {
     width: 75px; /* Reducido */
-    margin-bottom: 20px;
+    margin-bottom: 60px;
     margin-left: auto;
     margin-right: auto;
     display: block;
     border-radius: 50%;
+    margin-top: 10rem;
 }
 
 h1 {
@@ -67,6 +69,12 @@ h1 {
     margin-bottom: 3px;
     display: block;
     color: #ddd;
+}
+
+input:-webkit-autofill {
+    background-color: transparent !important;
+    color: white !important;
+    box-shadow: 0 0 0px 1000px #0a1e2b inset !important; /* Mantiene el color de fondo */
 }
 
 .input-wrapper {
@@ -131,8 +139,9 @@ h1 {
 
 .continue-text {
     margin-bottom: 15px;
-    margin-top: 15px;
+    margin-top: 30px;
     font-size: 15px; /* Reducido */
+    text-align: center;
 }
 
 .social-login {
