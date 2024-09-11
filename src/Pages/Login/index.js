@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import axios from "axios";
-import { useNavigate } from "react-router-dom"; 
+import { useNavigate } from "react-router-dom";
 import "./index.css";
 import logo from "./images/logo.png";
 import correoIcon from "./images/icons8-correo-48.png";
@@ -9,7 +9,8 @@ import eyeIcon from "./images/icons8-visible-48.png";
 import googleIcon from "./images/icons8-logo-de-google-50.png";
 import instagramIcon from "./images/icons8-instagram-50.png";
 import linkedinIcon from "./images/icons8-linkedin-50.png";
-import BackgroundAnimation from "./Components/Animation/Animation"; // Importar la animación
+import BackgroundAnimation from "./Animation/Animation"; // Importar la animación
+import { supabase } from "../../Configs/supabaseClient";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -41,6 +42,22 @@ const Login = () => {
       navigate("/home");
     } catch (error) {
       setError("Credenciales inválidas. Intente nuevamente.");
+    }
+  };
+
+  const handleGoogleLogin = async () => {
+    try {
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: window.location.origin + '/home'
+        }
+      });
+      if (error) throw error;
+      return { data };
+    } catch (error) {
+      console.error('Error during Google sign-in', error);
+      return { error };
     }
   };
 
@@ -97,7 +114,7 @@ const Login = () => {
         </button>
         <p className="continue-text">O continúa con</p>
         <div className="social-login">
-          <a href="#">
+          <a href="#" onClick={handleGoogleLogin}>
             <img src={googleIcon} alt="Google" />
           </a>
           <a href="#">

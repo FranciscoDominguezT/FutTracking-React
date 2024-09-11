@@ -1,20 +1,9 @@
-body{
-    overflow: hidden;
-}
-
 .posteos-container {
+    min-height: 520px;
     width: 100%;
     max-width: 800px; /* Ajusta según el tamaño deseado */
     margin: 0 auto; /* Centra el contenedor */
-    max-height: 56.9vh; /* Limita la altura total del contenedor */
-    overflow-y: auto; /* Permite el desplazamiento vertical si el contenido supera la altura */
-    padding-bottom: 20px; /* Añade un espacio en la parte inferior */
 }
-
-.posteos-container::-webkit-scrollbar {
-    display: none;  /* Para Chrome, Safari y Opera */
-}
-
 
 .posts-scroll-container {
     height: 500px; /* Ajusta este valor según tus necesidades */
@@ -68,7 +57,6 @@ body{
     margin-bottom: 15px;
     font-size: 16px;
     line-height: 1.4;
-    color: black;
 }
 
 .post-footerA {

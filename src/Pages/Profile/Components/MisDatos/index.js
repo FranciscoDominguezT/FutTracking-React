@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import axios from "axios";
 import { FaPencilAlt } from "react-icons/fa";
 import "./index.css";
 
@@ -28,41 +29,40 @@ const MisDatos = () => {
 
     const fetchUserData = async () => {
         try {
-            const response = await fetch('http://localhost:5001/api/user/userdata');
-            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-            const data = await response.json();
-            setUserData(data);
+            const token = localStorage.getItem('token');
+            const response = await axios.get('http://localhost:5001/api/user/userdata', {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            });
+            setUserData(response.data);
             setEditData({
-                edad: data.edad,
-                altura: data.altura,
-                nacion_id: data.nacion_id,
-                provincia_id: data.provincia_id,
-                email: data.email || ''
+                edad: response.data.edad || '',
+                altura: response.data.altura || '',
+                nacion_id: response.data.nacion_id || '',
+                provincia_id: response.data.provincia_id || '',
+                email: response.data.email || ''
             });
         } catch (error) {
-            console.error("Error fetching user data:", error);
+            console.error('Error fetching user data:', error);
         }
     };
 
     const fetchNaciones = async () => {
         try {
-            const response = await fetch('http://localhost:5001/api/user/naciones');
-            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-            const data = await response.json();
-            setNaciones(data);
+            const response = await axios.get('http://localhost:5001/api/user/naciones');
+            setNaciones(response.data);
         } catch (error) {
-            console.error("Error fetching naciones:", error);
+            console.error('Error fetching naciones:', error);
         }
     };
 
     const fetchProvincias = async (nacionId) => {
         try {
-            const response = await fetch(`http://localhost:5001/api/user/provincias/${nacionId}`);
-            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-            const data = await response.json();
-            setProvincias(data);
+            const response = await axios.get(`http://localhost:5001/api/user/provincias/${nacionId}`);
+            setProvincias(response.data);
         } catch (error) {
-            console.error("Error fetching provincias:", error);
+            console.error('Error fetching provincias:', error);
         }
     };
 
@@ -78,18 +78,15 @@ const MisDatos = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            const response = await fetch('http://localhost:5001/api/user/userdata', {
-                method: 'PUT',
+            const token = localStorage.getItem('token');
+            await axios.put('http://localhost:5001/api/user/userdata', editData, {
                 headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(editData)
+                    Authorization: `Bearer ${token}`
+                }
             });
-            if (!response.ok) throw new Error("Error updating data");
-            setEditing(false);
-            fetchUserData();
+            alert('Datos actualizados correctamente');
         } catch (error) {
-            console.error("Error updating data:", error);
+            console.error('Error updating user data:', error);
         }
     };
 

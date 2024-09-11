@@ -20,7 +20,12 @@ const Posteos = () => {
 
   const fetchPosts = async () => {
     try {
-      const response = await fetch("http://localhost:5001/api/posts");
+      const token = localStorage.getItem("token");
+      const response = await fetch("http://localhost:5001/api/posts", {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
       const data = await response.json();
       console.log("Posts cargados:", data);
       setPosts(data);
@@ -69,13 +74,6 @@ const Posteos = () => {
       console.error("Error updating likes:", error);
     }
   };
-  
-  
-  
-  
-  
-  
-  
 
   const handleDeleteTweet = async (event, postId) => {
     event.stopPropagation();
@@ -140,7 +138,7 @@ const Posteos = () => {
   const handleCommentCreated = (newComment) => {
     setPosts(
       posts.map((post) =>
-        post.id === newComment.posteoid
+        post.post_id === newComment.posteoid
           ? { ...post, count: (post.count || 0) + 1 }
           : post
       )
@@ -186,7 +184,7 @@ const Posteos = () => {
           <p className="post-content">{post.contenido}</p>
           <div className="post-footerA">
             <button
-              onClick={(event) => handleLike(event, post.post_id, post.likes)}
+              onClick={(event) => handleLike(event, post.post_id)}
               className={`ytr-button ${
                 likedPosts[post.post_id] ? "liked" : ""
               }`}

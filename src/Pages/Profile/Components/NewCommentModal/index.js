@@ -1,41 +1,69 @@
-import React, { useState, useContext } from 'react';
-import axios from 'axios';
+import React, { useState, useEffect } from 'react';
+import supabase from '../../../../Configs/supabaseClient';
 import './index.css';
 
 const NewCommentModal = ({ isOpen, onClose, onCommentCreated, postId, parentId = null }) => {
   const [content, setContent] = useState('');
+  const [currentUser, setCurrentUser] = useState(null);
+
+  useEffect(() => {
+    // Fetch the current user data
+    const fetchCurrentUser = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('usuarios')
+          .select(`
+            id,
+            nombre,
+            apellido,
+            perfil_jugadores (
+              avatar_url
+            )
+          `)
+          .eq('id', 11) // Assuming the current user ID is 11
+          .single();
+          
+        if (error) throw error;
+        setCurrentUser(data);
+      } catch (error) {
+        console.error("Error fetching current user:", error);
+      }
+    };
+
+    fetchCurrentUser();
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!content.trim()) return;
 
     try {
-      console.log('Posting comment with postId:', postId);
-      const response = await axios.post(`http://localhost:5001/api/posts/${postId}/comments`, {
-        usuarioid: 11, // TODO: Reemplazar con ID dinámico del usuario autenticado
-        contenido: content,
-        parentid: parentId,
-      });
+      const { data, error } = await supabase
+        .from('respuestas_posteos')
+        .insert([
+          {
+            posteoid: postId,
+            usuarioid: currentUser.id, // Use the current user ID
+            contenido: content,
+            fechapublicacion: new Date().toISOString(),
+            likes: 0,
+            parentid: parentId
+          }
+        ])
+        .select();
 
-      const newComment = response.data;
-
-      // Fetch user data for the new comment
-      const responseUser = await axios.get('http://localhost:5001/api/users/11');
-      const userData = responseUser.data;
-      console.log('User Data:', userData);
+      if (error) throw error;
 
       const newCommentWithUserData = {
-        ...newComment,
-        nombre: userData.nombre,
-        apellido: userData.apellido,
-        avatar_url: userData.perfil_jugadores ? userData.perfil_jugadores.avatar_url : '', // Protege contra undefined
+        ...data[0],
+        usuarios: currentUser
       };
 
       onCommentCreated(newCommentWithUserData);
       setContent('');
       onClose();
     } catch (error) {
-      console.error('Error creating comment:', error);
+      console.error("Error creating comment:", error);
     }
   };
 

@@ -1,3 +1,27 @@
+@keyframes modalFadeIn {
+    from {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+
+@keyframes modalFadeOut {
+    from {
+        opacity: 1;
+        transform: scale(1);
+    }
+    to {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+}
+
+
 .modal-overlay {
     position: fixed;
     top: 0;
@@ -9,7 +33,9 @@
     justify-content: center;
     align-items: center;
     z-index: 1100;
+    animation: modalFadeIn 0.3s ease-out;
 }
+
 
 .modal-content {
     background-color: white;
@@ -17,7 +43,9 @@
     padding: 20px;
     width: 90%;
     max-width: 450px;
+    animation: modalFadeIn 0.3s ease-out;
 }
+
 
 .modal-content h2 {
     margin-top: 0;
@@ -26,10 +54,12 @@
     color: #14171a;
 }
 
+
 .modal-content form {
     display: flex;
     flex-direction: column;
 }
+
 
 .modal-content textarea {
     width: 100%;
@@ -42,10 +72,12 @@
     margin-bottom: 15px;
 }
 
+
 .modal-actions {
     display: flex;
     justify-content: flex-end;
 }
+
 
 .modal-actions button {
     padding: 8px 16px;
@@ -55,6 +87,7 @@
     transition: background-color 0.2s;
 }
 
+
 .modal-actions button[type="button"] {
     background-color: white;
     color: #1da1f2;
@@ -62,15 +95,18 @@
     margin-right: 10px;
 }
 
+
 .modal-actions button[type="button"]:hover {
     background-color: #e8f5fe;
 }
+
 
 .modal-actions button[type="submit"] {
     background-color: #1da1f2;
     color: white;
     border: none;
 }
+
 
 .modal-actions button[type="submit"]:hover {
     background-color: #1a91da;

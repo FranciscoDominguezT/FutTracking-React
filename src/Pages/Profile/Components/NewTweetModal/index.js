@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import supabase from '../../../../Configs/supabaseClient';
 import './index.css';
 
 const NewTweetModal = ({ isOpen, onClose, onTweetCreated }) => {
@@ -9,49 +10,55 @@ const NewTweetModal = ({ isOpen, onClose, onTweetCreated }) => {
     if (!content.trim()) return;
 
     try {
-        const response = await fetch('http://localhost:5001/api/posts', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                usuarioid: 11, // Asumiendo que el ID del usuario actual es 11
-                contenido: content,
-                videourl: null, // Si hay algún video asociado, puedes pasar su URL aquí
-            }),
-        });
+      const { data, error } = await supabase
+        .from('posteos')
+        .insert([
+          { 
+            usuarioid: 11, // Asumiendo que el ID del usuario actual es 11
+            contenido: content,
+            fechapublicacion: new Date().toISOString(),
+            likes: 0
+          }
+        ])
+        .select();
 
-        const newPost = await response.json();
+      if (error) throw error;
+      
+      // Fetch the user data for the new tweet
+      const { data: userData, error: userError } = await supabase
+        .from('usuarios')
+        .select(`
+          id,
+          nombre,
+          apellido,
+          perfil_jugadores (
+            avatar_url
+          )
+        `)
+        .eq('id', 11)
+        .single();
 
-        if (response.ok) {
-            // Añadimos los datos de usuario y contador de comentarios
-            const responseUser = await fetch('http://localhost:5001/api/users/11');
-            const userData = await responseUser.json();
+      if (userError) throw userError;
 
-            const newTweetWithUserData = {
-                ...newPost,
-                nombre: userData.nombre,
-                apellido: userData.apellido,
-                avatar_url: userData.avatar_url,
-                count: 0, // Inicialmente 0 comentarios
-            };
+      const newTweetWithUserData = {
+        ...data[0],
+        usuarios: userData,
+        respuestas_posteos: [{ count: 0 }]
+      };
 
-            onTweetCreated(newTweetWithUserData);
-            setContent('');
-            onClose();
-        } else {
-            console.error('Error creating tweet:', newPost);
-        }
+      onTweetCreated(newTweetWithUserData);
+      setContent('');
+      onClose();
     } catch (error) {
-        console.error('Error creating tweet:', error);
+      console.error("Error creating tweet:", error);
     }
-};
+  };
 
   if (!isOpen) return null;
 
   return (
-    <div className="modal-overlay">
-      <div className="modal-content">
+    <div className="modal-overlayt">
+      <div className="modal-contentt">
         <h2>New Tweet</h2>
         <form onSubmit={handleSubmit}>
           <textarea
@@ -60,7 +67,7 @@ const NewTweetModal = ({ isOpen, onClose, onTweetCreated }) => {
             placeholder="What's happening?"
             maxLength={280}
           />
-          <div className="modal-actions">
+          <div className="modal-actionst">
             <button type="button" onClick={onClose}>Cancel</button>
             <button type="submit">Tweet</button>
           </div>
