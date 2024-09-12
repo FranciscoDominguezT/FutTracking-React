@@ -49,22 +49,22 @@ const Gallery = () => {
   const progressBarRef = useRef();
 
   useEffect(() => {
-    const fetchVideo = async () => {
+    const fetchVideos = async () => {
       try {
         const token = localStorage.getItem('token');
         console.log('Token JWT:', token);
-        const response = await fetch("http://localhost:5001/api/userProfile/videos", {
+        const response = await fetch(`${API_BASE_URL}/userProfile/videos`, {
           headers: {
-            'Authorization': `Bearer ${token}` // Asegúrate de que el token esté en el localStorage
+            'Authorization': `Bearer ${token}`
           }
         });
         const data = await response.json();
         
         if (response.ok) {
           if (data.message === "No hay videos cargados") {
-            setVideos([]);  // Si no hay videos
+            setVideos([]);
           } else {
-            setVideos(data);  // Si hay videos
+            setVideos(data);
           }
         } else {
           console.log("Error al obtener los videos:", data.message);
@@ -73,7 +73,7 @@ const Gallery = () => {
         console.error("Error al obtener los videos:", error);
       }
     };
-    fetchVideo();
+    fetchVideos();
   }, []);
 
 
@@ -483,8 +483,8 @@ useEffect(() => {
       {videos.length === 0 ? (
         <p>No hay videos cargados</p>
       ) : (
-       videos.map((video, index) => (
-        <React.Fragment key={video.id}>
+        <div className="video-grid">
+        {videos.map((video) => (
           <div className="gallery-item" key={video.id}>
             <video
               src={video.url}
@@ -493,9 +493,8 @@ useEffect(() => {
               controls={false}
             ></video>
           </div>
-          {(index + 1) % 3 === 0 && <div className="divider" />}
-        </React.Fragment>
-      ))
+        ))}
+      </div>
       )}
       {selectedVideo && (
         <div className="fullscreen-video">
