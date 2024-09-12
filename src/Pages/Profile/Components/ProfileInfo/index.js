@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
+import getAuthenticatedAxios from "../../../../Utils/api";
 import "./index.css";
 
 const ProfileInfo = ({ onEditClick }) => {
@@ -13,31 +13,33 @@ const ProfileInfo = ({ onEditClick }) => {
   useEffect(() => {
     const fetchProfile = async () => {
       try {
+        const googleUser = JSON.parse(localStorage.getItem("googleUser"));
         const token = localStorage.getItem("token");
-        console.log("Token:", token);
 
-        if (!token) {
+        if (!token && !googleUser) {
           navigate("/login");
           return;
         }
 
-        const response = await axios.get(
-          "http://localhost:5001/api/profile/profile",
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-
-        const data = response.data;
-        console.log("API Response:", data);
-
-        if (data.profile) {
-          setProfile(data.profile);
-          setFollowersCount(data.followersCount);
+        if (googleUser) {
+          setProfile({
+            nombre: googleUser.name.split(' ')[0],
+            apellido: googleUser.name.split(' ')[1] || '',
+            avatar_url: googleUser.avatar_url,
+            email: googleUser.email,
+            rol: "Jugador"
+          });
         } else {
-          setError("No se encontró información del perfil");
+          const api = getAuthenticatedAxios();
+          const response = await api.get("/profile/profile");
+
+          const data = response.data;
+          if (data.profile) {
+            setProfile(data.profile);
+            setFollowersCount(data.followersCount);
+          } else {
+            setError("No se encontró información del perfil");
+          }
         }
       } catch (error) {
         console.error("Error fetching profile:", error);
