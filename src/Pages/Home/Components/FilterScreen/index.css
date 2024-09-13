@@ -1,0 +1,149 @@
+/* FilterScreen.css */
+
+.filter-screen {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 20px;
+    min-height: calc(100vh - 100px); /* Ajusta la altura del contenedor principal */
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    overflow-y: auto; /* Habilitar scroll vertical */
+    scrollbar-width: none; /* Ocultar barra en Firefox */
+    -ms-overflow-style: none;  /* Ocultar barra en IE y Edge */
+}
+
+.filter-screen::-webkit-scrollbar {
+    display: none; /* Ocultar barra de scroll en Chrome y Safari */
+}
+  
+  .filter-screen h1 {
+    font-size: 24px;
+    margin-bottom: 20px;
+  }
+  
+  .filter-container {
+    display: flex;
+    gap: 20px;
+    flex-grow: 1; /* Deja que el contenedor de filtros crezca para ocupar el espacio */
+    overflow: auto; /* Permite el desplazamiento del contenido si es necesario */
+  }
+  
+  .filter-sidebar {
+    flex: 1;
+    background-color: white;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  .filter-sidebar h2 {
+    font-size: 18px;
+    margin-bottom: 15px;
+  }
+  
+  .filter-group {
+    margin-bottom: 15px;
+  }
+  
+  .filter-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+  }
+  
+  .filter-group input[type="range"] {
+    width: 100%;
+    margin-bottom: 5px;
+  }
+  
+  .filter-group select {
+    width: 100%;
+    padding: 5px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+  }
+  
+  .filter-values {
+    display: flex;
+    justify-content: space-between;
+    font-size: 14px;
+  }
+  
+  .filter-buttons {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+  }
+  
+  .filter-buttons button {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  
+  .filter-buttons button:first-child {
+    background-color: #f0f0f0;
+    color: #333;
+  }
+  
+  .filter-buttons button:last-child {
+    background-color: #4CAF50;
+    color: white;
+  }
+  
+  .players-container {
+    flex: 2;
+    max-height: calc(100vh - 200px); /* Limita la altura para permitir scroll */
+    overflow-y: scroll; /* Habilitar el scroll en el contenedor de las cards */
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.players-container::-webkit-scrollbar {
+    display: none;
+}
+  
+  .players-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 20px;
+  }
+  
+  .bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background-color: white;
+    display: flex;
+    justify-content: space-around;
+    padding: 10px 0;
+    box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  .bottom-nav a {
+    text-decoration: none;
+    color: #333;
+    font-size: 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .bottom-nav a i {
+    font-size: 24px;
+    margin-bottom: 5px;
+  }
+  
+  .footer {
+    display: flex;
+    justify-content: space-around;
+    padding: 10px;
+    background-color: #fff;
+    box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
+    position: sticky;
+    bottom: 0;
+    z-index: 2;
+  }

@@ -6,15 +6,13 @@ import comments from './images/icons8-burbuja-de-diálogo-con-puntos-30.png'
 import camera from './images/icons8-camera-24.png'
 import envelope from './images/icons8-nuevo-post-24.png'
 import user from './images/icons8-persona-de-sexo-masculino-24.png'
-import { Link } from 'react-router-dom';
-import Home from '../..';
 
 
 const Footer = () => {
     return (
         <div class="footer-icons">
                 <div class="footer-icon">
-                    <Link to="/home"><img src={home} alt="Logo" class="footer-icon-icon"/></Link>
+                    <img src={home} alt="Logo" class="footer-icon-icon"/>
                     <span className='spa'>Inicio</span>
                 </div>
                 <div class="footer-icon">

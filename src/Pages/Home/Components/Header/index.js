@@ -15,7 +15,7 @@ const Header = () => {
                 <FaSearch className="search-icon" />
             </div>
             <div className="icons">
-                <img src={filter} alt="Logo" className="icon" />
+                <Link to="/filter"><img src={filter} alt="Logo" className="icon" /></Link>
                 <img src={settings} alt="Logo" className="icon" />
             </div>
         </header>
