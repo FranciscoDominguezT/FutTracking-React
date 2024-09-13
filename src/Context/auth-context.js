@@ -1,6 +1,5 @@
 import { createContext, useEffect, useState } from 'react';
-import { supabase } from '../Configs/supabaseClient';
-import { createOrUpdateUser } from '../Services/auth-service';
+import { signInWithEmail, signInWithGoogle } from '../Services/auth-service';
 
 export const AuthContext = createContext({
     user: null,
@@ -12,31 +11,36 @@ export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [authError, setAuthError] = useState(null);
 
-    useEffect(() => {
-        const { data: authListener } = supabase.auth.onAuthStateChange(async (event, session) => {
-            if (event === 'SIGNED_IN' || event === 'USER_UPDATED') {
-                if (session?.user) {
-                    try {
-                        const userData = await createOrUpdateUser(session.user);
-                        setUser(userData);
-                        setAuthError(null);
-                    } catch (error) {
-                        console.error("Error updating user data:", error);
-                        setAuthError("Error updating user data");
-                    }
-                }
-            } else if (event === 'SIGNED_OUT') {
-                setUser(null);
-            }
-        });
+    // Función para iniciar sesión con email y contraseña
+    const loginWithEmail = async (email, password) => {
+        const { user, error } = await signInWithEmail(email, password);
+        if (error) {
+            setAuthError(error);
+        } else {
+            setUser(user);
+            setAuthError(null);
+        }
+    };
 
-        return () => {
-            authListener?.unsubscribe();
-        };
-    }, []);
+    // Función para iniciar sesión con Google
+    const loginWithGoogle = async () => {
+        const { user, error } = await signInWithGoogle();
+        if (error) {
+            setAuthError(error);
+        } else {
+            setUser(user);
+            setAuthError(null);
+        }
+    };
+
+    // Función para cerrar sesión
+    const logout = () => {
+        setUser(null);
+        localStorage.removeItem("token");
+    };
 
     return (
-        <AuthContext.Provider value={{ user, authError, setAuthError }}>
+        <AuthContext.Provider value={{ user, authError, loginWithEmail, loginWithGoogle, logout }}>
             {children}
         </AuthContext.Provider>
     );

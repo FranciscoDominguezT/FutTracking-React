@@ -1,149 +1,228 @@
-/* FilterScreen.css */
-
 .filter-screen {
-    max-width: 1100px;
-    margin: 0 auto;
-    padding: 20px;
-    min-height: calc(100vh - 100px); /* Ajusta la altura del contenedor principal */
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    overflow-y: auto; /* Habilitar scroll vertical */
-    scrollbar-width: none; /* Ocultar barra en Firefox */
-    -ms-overflow-style: none;  /* Ocultar barra en IE y Edge */
+  max-width: 1200px; /* Aumenta el ancho del contenedor */
+  margin: 0 auto;
+  padding: 20px;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  overflow-y: auto;
 }
 
-.filter-screen::-webkit-scrollbar {
-    display: none; /* Ocultar barra de scroll en Chrome y Safari */
+
+.filter-container {
+  display: flex;
+  gap: 15px;
 }
-  
-  .filter-screen h1 {
-    font-size: 24px;
-    margin-bottom: 20px;
-  }
-  
-  .filter-container {
-    display: flex;
-    gap: 20px;
-    flex-grow: 1; /* Deja que el contenedor de filtros crezca para ocupar el espacio */
-    overflow: auto; /* Permite el desplazamiento del contenido si es necesario */
-  }
-  
-  .filter-sidebar {
-    flex: 1;
-    background-color: white;
-    border-radius: 8px;
-    padding: 20px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  }
-  
-  .filter-sidebar h2 {
-    font-size: 18px;
-    margin-bottom: 15px;
-  }
-  
-  .filter-group {
-    margin-bottom: 15px;
-  }
-  
-  .filter-group label {
-    display: block;
-    margin-bottom: 5px;
-    font-weight: bold;
-  }
-  
-  .filter-group input[type="range"] {
-    width: 100%;
-    margin-bottom: 5px;
-  }
-  
-  .filter-group select {
-    width: 100%;
-    padding: 5px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-  }
-  
-  .filter-values {
-    display: flex;
-    justify-content: space-between;
-    font-size: 14px;
-  }
-  
-  .filter-buttons {
-    display: flex;
-    justify-content: space-between;
-    margin-top: 20px;
-  }
-  
-  .filter-buttons button {
-    padding: 8px 16px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-  }
-  
-  .filter-buttons button:first-child {
-    background-color: #f0f0f0;
-    color: #333;
-  }
-  
-  .filter-buttons button:last-child {
-    background-color: #4CAF50;
-    color: white;
-  }
-  
-  .players-container {
-    flex: 2;
-    max-height: calc(100vh - 200px); /* Limita la altura para permitir scroll */
-    overflow-y: scroll; /* Habilitar el scroll en el contenedor de las cards */
-    scrollbar-width: none;
-    -ms-overflow-style: none;
+
+
+.filter-sidebar {
+  flex: 0 0 100px; /* Sidebar más pequeño */
+  background-color: #f4f4f4;
+  border-radius: 10px;
+  padding: 15px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease-in-out;
 }
+
+
+.filter-group {
+  margin-bottom: 25px;
+  position: relative;
+}
+
+
+.filter-group label {
+  display: block;
+  font-weight: bold;
+  color: #6c3e3e;
+  margin-bottom: 10px;
+  font-size: 14px;
+}
+
+
+.filter-group input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 5px; /* Hacerlo más delgado */
+  background: #ccc; /* Color base del track */
+  border-radius: 5px;
+  outline: none;
+  margin-bottom: 10px;
+  --value: 0; /* Valor inicial */
+}
+
+
+.filter-group input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #ffffff;
+  cursor: pointer;
+  border: 2px solid #4CAF50;
+  transition: transform 0.2s ease-in-out;
+}
+
+
+/* Cambiar el color progresivamente al mover el slider */
+.filter-group input[type="range"] {
+  background: linear-gradient(
+    to right,
+    #4CAF50 0%,
+    #4CAF50 var(--value),
+    #ccc var(--value),
+    #ccc 100%
+  );
+}
+
+
+.filter-group input[type="range"]:focus {
+  background: linear-gradient(
+    to right,
+    #4CAF50 0%,
+    #4CAF50 var(--value),
+    #ccc var(--value),
+    #ccc 100%
+  );
+}
+
+
+.filter-group input[type="range"]:hover::-webkit-slider-thumb {
+  transform: scale(1.1); /* Pequeño zoom al pasar el mouse */
+}
+
+
+.filter-values {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: #555;
+}
+
+
+.apply-btn {
+  font-size: 12px;
+  color: #4CAF50;
+  cursor: pointer;
+  text-align: right;
+  margin-top: -5px;
+}
+
+
+/* Estilo del select con flecha personalizada */
+.filter-group select {
+  width: 100%;
+  padding: 10px 15px;
+  border: none;
+  background-color: #7e7e7e;
+  color: white;
+  font-size: 12px;
+  border-radius: 25px;
+  appearance: none;
+  padding-right: 40px; /* Espacio para la flecha */
+  outline: none;
+  position: relative;
+  background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%204%205%22%3E%3Cpath%20fill%3D%22%23FFFFFF%22%20d%3D%22M2%200L0%202h4L2%200zM2%205l2-2H0l2%202z%22/%3E%3C/svg%3E');
+  background-repeat: no-repeat;
+  background-position: right 15px center;
+  background-size: 12px;
+}
+
+
+.filter-group select:hover {
+  background-color: #5c5c5c; /* Fondo más oscuro en hover */
+}
+
+
+.filter-buttons {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 25px;
+}
+
+
+/* Estilo de los botones */
+.filter-buttons button {
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  padding: 8px 15px;
+  font-size: 12px;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+  margin: 5px;
+}
+
+
+.filter-buttons button:first-child {
+  background-color: #ddd;
+  color: #333;
+}
+
+
+.filter-buttons button:hover {
+  background-color: #45a049;
+  transform: scale(1.05);
+}
+
+
+.filter-buttons button:first-child:hover {
+  background-color: #bbb;
+}
+
+
+.players-container {
+  flex: 2;
+  max-height: calc(100vh - 150px); /* Ajusta la altura para que haya scroll */
+  overflow-y: scroll;
+  scrollbar-width: thin;
+  scrollbar-color: #888 #f4f4f4;
+  padding-right: 5px;
+}
+
 
 .players-container::-webkit-scrollbar {
-    display: none;
+  width: 8px;
 }
-  
+
+
+.players-container::-webkit-scrollbar-thumb {
+  background-color: #888;
+  border-radius: 10px;
+}
+
+
+.players-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); /* Aumenta el tamaño mínimo de las cards */
+  gap: 20px; /* Más espacio entre las cards */
+  transition: all 0.3s ease;
+}
+
+
+.players-grid:hover .player-card {
+  transform: scale(1.05); /* Animación suave en las tarjetas */
+}
+
+
+.player-card {
+  transition: all 0.3s ease;
+  background-color: white;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+
+@media (max-width: 768px) {
+  .filter-sidebar {
+      flex: 1;
+  }
   .players-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-    gap: 20px;
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); /* Tamaño más pequeño para pantallas pequeñas */
   }
-  
-  .bottom-nav {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    background-color: white;
-    display: flex;
-    justify-content: space-around;
-    padding: 10px 0;
-    box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
-  }
-  
-  .bottom-nav a {
-    text-decoration: none;
-    color: #333;
-    font-size: 12px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
-  
-  .bottom-nav a i {
-    font-size: 24px;
-    margin-bottom: 5px;
-  }
-  
-  .footer {
-    display: flex;
-    justify-content: space-around;
-    padding: 10px;
-    background-color: #fff;
-    box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
-    position: sticky;
-    bottom: 0;
-    z-index: 2;
-  }
+}

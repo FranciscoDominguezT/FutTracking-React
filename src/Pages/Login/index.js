@@ -47,44 +47,32 @@ const Login = () => {
 
   const handleGoogleLogin = async () => {
     try {
-      const { data, error } = await supabase.auth.signInWithOAuth({
-        provider: 'google',
-        options: {
-          redirectTo: window.location.origin + '/home'
-        }
-      });
-      if (error) throw error;
-      
-      // Obtener la información del usuario después del inicio de sesión
-      const { data: { user } } = await supabase.auth.getUser();
-      
-      if (user) {
-        // Guardar la información del usuario en el localStorage
-        localStorage.setItem('googleUser', JSON.stringify({
-          name: user.user_metadata.full_name,
-          email: user.email,
-          avatar_url: user.user_metadata.avatar_url
-        }));
-        
-        // Llamar a tu API para crear o actualizar el usuario en tu base de datos
-        const response = await axios.post('http://localhost:5001/api/login/google-login', {
-          name: user.user_metadata.full_name,
-          email: user.email,
-          picture: user.user_metadata.avatar_url
+        const { data, error } = await supabase.auth.signInWithOAuth({
+            provider: 'google',
+            options: {
+                redirectTo: window.location.origin + '/home'
+            }
         });
-        
-        // Guardar el token JWT en el localStorage
-        localStorage.setItem('token', response.data.token);
-        
-        navigate('/home');
-      }
-      
-      return { data };
+        if (error) throw error;
+
+        const { data: { user } } = await supabase.auth.getUser();
+
+        if (user) {
+            const response = await axios.post('http://localhost:5001/api/login/google-login', {
+                name: user.user_metadata.full_name,
+                email: user.email,
+                picture: user.user_metadata.avatar_url
+            });
+
+            localStorage.setItem('token', response.data.token);
+            localStorage.setItem('googleUser', JSON.stringify(response.data.user));
+
+            navigate('/home');
+        }
     } catch (error) {
-      console.error('Error during Google sign-in', error);
-      return { error };
+        console.error('Error during Google sign-in', error);
     }
-  };
+};
 
   return (
     <div className="login-container">

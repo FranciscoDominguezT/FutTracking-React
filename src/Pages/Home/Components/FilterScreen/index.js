@@ -2,7 +2,9 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import PlayerCard from '../PlayerCard';
 import Footer from '../Footer';
+import Header from '../Header'; // Importa el componente Header
 import './index.css';
+
 
 const FilterScreen = () => {
   const [players, setPlayers] = useState([]);
@@ -17,13 +19,16 @@ const FilterScreen = () => {
     club: '',
   });
 
+
   useEffect(() => {
     fetchPlayers();
   }, []);
 
+
   useEffect(() => {
     applyFilters();
   }, [filters, players]);
+
 
   const fetchPlayers = async () => {
     try {
@@ -34,10 +39,10 @@ const FilterScreen = () => {
       console.error('Error fetching players:', error);
     }
   };
-  
+
 
   const applyFilters = () => {
-    const filtered = players.filter(player => 
+    const filtered = players.filter(player =>
       player.altura >= filters.height[0] && player.altura <= filters.height[1] &&
       player.peso >= filters.weight[0] && player.peso <= filters.weight[1] &&
       player.edad >= filters.age[0] && player.edad <= filters.age[1] &&
@@ -49,12 +54,14 @@ const FilterScreen = () => {
     setFilteredPlayers(filtered);
   };
 
+
   const handleFilterChange = (filterName, value) => {
     setFilters(prevFilters => ({
       ...prevFilters,
       [filterName]: value
     }));
   };
+
 
   const resetFilters = () => {
     setFilters({
@@ -68,21 +75,24 @@ const FilterScreen = () => {
     });
   };
 
+
   return (
-    <div className="filter-screen">
-      <h1>Pantalla Filtrado</h1>
+    <div>
+      <Header /> {/* Componente Header en lugar de h1 */}
+      <div className="filter-screen">
       <div className="filter-container">
         <div className="filter-sidebar">
           <h2>Filtros</h2>
-          
+
+
           {/* Altura */}
           <div className="filter-group">
             <label>Altura</label>
-            <input 
-              type="range" 
-              min="140" 
-              max="220" 
-              value={filters.height[0]} 
+            <input
+              type="range"
+              min="140"
+              max="220"
+              value={filters.height[0]}
               onChange={(e) => handleFilterChange('height', [e.target.valueAsNumber, filters.height[1]])}
             />
             <div className="filter-values">
@@ -91,14 +101,15 @@ const FilterScreen = () => {
             </div>
           </div>
 
+
           {/* Peso */}
           <div className="filter-group">
             <label>Peso</label>
-            <input 
-              type="range" 
-              min="50" 
-              max="150" 
-              value={filters.weight[0]} 
+            <input
+              type="range"
+              min="50"
+              max="150"
+              value={filters.weight[0]}
               onChange={(e) => handleFilterChange('weight', [e.target.valueAsNumber, filters.weight[1]])}
             />
             <div className="filter-values">
@@ -107,14 +118,15 @@ const FilterScreen = () => {
             </div>
           </div>
 
+
           {/* Edad */}
           <div className="filter-group">
             <label>Edad</label>
-            <input 
-              type="range" 
-              min="15" 
-              max="45" 
-              value={filters.age[0]} 
+            <input
+              type="range"
+              min="15"
+              max="45"
+              value={filters.age[0]}
               onChange={(e) => handleFilterChange('age', [e.target.valueAsNumber, filters.age[1]])}
             />
             <div className="filter-values">
@@ -123,10 +135,11 @@ const FilterScreen = () => {
             </div>
           </div>
 
+
           {/* Nacionalidad */}
           <div className="filter-group">
             <label>Nacionalidad</label>
-            <select 
+            <select
               value={filters.nationality}
               onChange={(e) => handleFilterChange('nationality', e.target.value)}
             >
@@ -135,10 +148,11 @@ const FilterScreen = () => {
             </select>
           </div>
 
+
           {/* Posición */}
           <div className="filter-group">
             <label>Posición</label>
-            <select 
+            <select
               value={filters.position}
               onChange={(e) => handleFilterChange('position', e.target.value)}
             >
@@ -147,10 +161,11 @@ const FilterScreen = () => {
             </select>
           </div>
 
+
           {/* Liga */}
           <div className="filter-group">
             <label>Liga</label>
-            <select 
+            <select
               value={filters.liga}
               onChange={(e) => handleFilterChange('liga', e.target.value)}
             >
@@ -159,10 +174,11 @@ const FilterScreen = () => {
             </select>
           </div>
 
+
           {/* Club */}
           <div className="filter-group">
             <label>Club</label>
-            <select 
+            <select
               value={filters.club}
               onChange={(e) => handleFilterChange('club', e.target.value)}
             >
@@ -171,11 +187,13 @@ const FilterScreen = () => {
             </select>
           </div>
 
+
           <div className="filter-buttons">
             <button onClick={resetFilters}>Borrar</button>
             <button onClick={applyFilters}>Aplicar</button>
           </div>
         </div>
+
 
         <div className="players-container">
           <div className="players-grid">
@@ -187,10 +205,14 @@ const FilterScreen = () => {
       </div>
       <footer className="footer">
             <Footer />
-          </footer>
+      </footer>
     </div>
-    
+    </div>
+   
   );
 };
 
+
 export default FilterScreen;
+
+
