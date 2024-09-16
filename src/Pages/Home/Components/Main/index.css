@@ -397,6 +397,7 @@
     display: flex;
     align-items: center;
     cursor: pointer;
+    padding-left: 12rem;
 }
 
 .comment-like-icon span {

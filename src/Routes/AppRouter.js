@@ -14,7 +14,7 @@ const AppRouter = () => {
       <Route path="/profile" element={<Profile />} />
       <Route path="/register" element={<Register />} />
       <Route path="/filter" element={<FilterScreen />} />
-      <Route path="/playerProfile/:id" element={<PlayerProfile />} />
+      <Route path="/playerProfile/:usuario_id" element={<PlayerProfile />} />
     </Routes>
   );
 };

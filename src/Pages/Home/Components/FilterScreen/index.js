@@ -215,4 +215,3 @@ const FilterScreen = () => {
 
 export default FilterScreen;
 
-

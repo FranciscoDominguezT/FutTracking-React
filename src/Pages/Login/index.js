@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import "./index.css";
@@ -11,12 +11,14 @@ import instagramIcon from "./images/icons8-instagram-50.png";
 import linkedinIcon from "./images/icons8-linkedin-50.png";
 import BackgroundAnimation from "./Animation/Animation"; // Importar la animación
 import { supabase } from "../../Configs/supabaseClient";
+import { AuthContext } from "../../Context/auth-context";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [passwordVisible, setPasswordVisible] = useState(false);
   const [error, setError] = useState("");
+  const { setAuthError } = useContext(AuthContext);
   const navigate = useNavigate();
 
   const togglePasswordVisibility = () => {
@@ -25,23 +27,23 @@ const Login = () => {
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    setError("");
+    setAuthError(null);
 
     if (!email || !password) {
-      setError("Por favor, ingrese todos los campos");
-      return;
+        setAuthError("Por favor, ingrese todos los campos");
+        return;
     }
 
     try {
-      const response = await axios.post(
-        "http://localhost:5001/api/login/login",
-        { email, password }
-      );
+        const response = await axios.post(
+            "http://localhost:5001/api/login/login",
+            { email, password }
+        );
 
-      localStorage.setItem("token", response.data.token);
-      navigate("/home");
+        localStorage.setItem("token", response.data.token);
+        navigate("/home");
     } catch (error) {
-      setError("Credenciales inválidas. Intente nuevamente.");
+        setAuthError("Credenciales inválidas. Intente nuevamente.");
     }
   };
 
@@ -54,23 +56,11 @@ const Login = () => {
             }
         });
         if (error) throw error;
-
-        const { data: { user } } = await supabase.auth.getUser();
-
-        if (user) {
-            const response = await axios.post('http://localhost:5001/api/login/google-login', {
-                name: user.user_metadata.full_name,
-                email: user.email,
-                picture: user.user_metadata.avatar_url
-            });
-
-            localStorage.setItem('token', response.data.token);
-            localStorage.setItem('googleUser', JSON.stringify(response.data.user));
-
-            navigate('/home');
-        }
+        
+        // El manejo del token y la redirección se realizan en AuthContext
     } catch (error) {
         console.error('Error during Google sign-in', error);
+        setAuthError("Error al iniciar sesión con Google");
     }
 };
 

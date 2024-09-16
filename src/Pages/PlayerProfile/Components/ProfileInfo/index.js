@@ -1,20 +1,23 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
 import axios from 'axios';
 import "./index.css";
 
-const ProfileInfo = ({ onEditClick }) => {
+const ProfileInfo = ({ usuario_id, onEditClick }) => {
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const { id } = useParams(); // Verifica que `id` es el usuario_id
-  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchProfile = async () => {
+      if (!usuario_id) {
+        setError("ID de usuario no proporcionado");
+        setLoading(false);
+        return;
+      }
+
       try {
-        console.log(`Fetching profile for usuario_id: ${id}`);
-        const response = await axios.get(`http://localhost:5001/api/profile/player/${id}`);
+        console.log(`Fetching profile for usuario_id: ${usuario_id}`);
+        const response = await axios.get(`http://localhost:5001/api/profile/player/${usuario_id}`);
         console.log(`Profile data received:`, response.data);
         setProfile(response.data);
       } catch (error) {
@@ -26,7 +29,7 @@ const ProfileInfo = ({ onEditClick }) => {
     };
     
     fetchProfile();
-  }, [id]);
+  }, [usuario_id]);
 
   if (loading) {
     return <div>Cargando...</div>;

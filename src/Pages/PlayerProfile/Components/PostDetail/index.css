@@ -1,0 +1,217 @@
+.post-detail-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    z-index: 1000;
+}
+
+.post-detail-content {
+    background-color: white;
+    padding: 20px;
+    width: 90%;
+    max-width: 450px;
+    height: 98vh; /* Cambiado de min-height a height */
+    overflow-y: auto;
+    position: relative;
+}
+
+.post-detail-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.back-button {
+    font-size: 20px;
+    background: transparent;
+    border: none;
+    color: black;
+    cursor: pointer;
+    margin-right: 10px;
+}
+
+.post-detail-title {
+    margin: 0 auto;
+}
+
+.original-post {
+    border-bottom: 1px solid #e1e8ed;
+    padding-bottom: 20px;
+    margin-bottom: 20px;
+}
+
+.post-header, .comment-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.user-avatare {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    margin-right: 15px;
+}
+
+.post-info, .comment-info {
+    flex-grow: 1;
+}
+
+.post-content, .comment-content {
+    margin-bottom: 15px;
+    font-size: 1rem;
+}
+
+.comment-footer {
+    display: flex;
+    justify-content: space-between;
+}
+
+.post-footer {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.action-button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    color: #657786;
+    font-size: 14px;
+}
+
+.action-button.liked {
+    color: #e0245e;
+}
+
+.action-button svg {
+    margin-right: 5px;
+}
+
+.comments-scroll-container {
+    flex-grow: 1; /* Esto permitirá que la sección de comentarios ocupe todo el espacio disponible */
+    max-height: calc(100% - 220px); /* Ajustado para que ocupe todo el espacio restante, menos el espacio del post original */
+    overflow-y: auto;
+    padding-right: 10px;
+}
+
+.comments-scroll-container::-webkit-scrollbar {
+    display: none;
+}
+
+.comment {
+    border-bottom: 1px solid #e1e8ed;
+    padding: 15px 0;
+}
+
+.comment:last-child {
+    border-bottom: none;
+}
+
+.comment-likes {
+    background: none;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    margin-right: 20px;
+    color: #657786;
+    font-size: 14px;
+    transition: color 0.2s;
+}
+
+.comment-likes.liked {
+    color: #e0245e;
+}
+
+.comment-likes svg {
+    margin-right: 5px;
+}
+
+.reply-button {
+    display: flex;
+    align-items: center;
+    color: #657786;
+    margin-left: .25rem;
+    font-size: 14px;
+    gap: .25rem;
+}
+
+.confirm-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1200;
+    opacity: 0;
+    animation: fadeIn 0.5s forwards;
+}
+
+@keyframes fadeIn {
+    to {
+        opacity: 1;
+    }
+}
+
+.confirm-modal-content {
+    background-color: #fff;
+    padding: 30px;
+    border-radius: 10px;
+    text-align: center;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+    animation: slideUp 0.4s ease forwards;
+    opacity: 0;
+    transform: translateY(50px);
+}
+
+@keyframes slideUp {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.confirm-modal-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin-top: 20px;
+}
+
+.delete-confirm-button,
+.cancel-button {
+    background-color: #e0245e;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    width: 100px;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+}
+
+.cancel-button {
+    background-color: #888;
+}
+
+.delete-confirm-button:hover {
+    background-color: #c81b4b;
+}
+
+.cancel-button:hover {
+    background-color: #555;
+}
