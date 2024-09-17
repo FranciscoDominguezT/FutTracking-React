@@ -213,7 +213,7 @@ const PostDetail = ({
           <button onClick={onClose} className="back-button">
             <FaArrowLeft />
           </button>
-          <h2 className="post-detail-title">Post</h2>
+          <h2 className="post-detail-title">Posteos</h2>
         </div>
         <div className="original-post">
           <div className="post-header">
@@ -251,7 +251,7 @@ const PostDetail = ({
           </div>
         </div>
         <div className="comments-section">
-          <h3>Comments</h3>
+          <h3>Comentarios</h3>
           {renderComments()}
         </div>
       </div>

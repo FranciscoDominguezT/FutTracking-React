@@ -144,47 +144,51 @@ const Posteos = () => {
         onClose={() => setIsModalOpen(false)}
         onTweetCreated={handleTweetCreated}
       />
-      {posts.map((post) => (
-        <div
-          key={post.post_id}
-          className="post"
-          onClick={() => handlePostClick(post)}
-          style={{ cursor: "pointer" }}
-        >
-          <div className="post-header">
-            <img
-              src={post.avatar_url || "default-avatar.png"}
-              alt="Avatar del usuario"
-              className="user-avatar"
-            />
-            <div className="dxd">
-              <h3>{post.nombre || "Unknown"} {post.apellido || "User"}</h3>
-              <p>{new Date(post.fechapublicacion).toLocaleString()}</p>
+
+      {/* Agrega un contenedor con scroll para los tweets */}
+      <div className="posts-scroll-container">
+        {posts.map((post) => (
+          <div
+            key={post.post_id}
+            className="post"
+            onClick={() => handlePostClick(post)}
+            style={{ cursor: "pointer" }}
+          >
+            <div className="post-header">
+              <img
+                src={post.avatar_url || "default-avatar.png"}
+                alt="Avatar del usuario"
+                className="user-avatar"
+              />
+              <div className="dxd">
+                <h3>{post.nombre || "Unknown"} {post.apellido || "User"}</h3>
+                <p>{new Date(post.fechapublicacion).toLocaleString()}</p>
+              </div>
+              <button
+                onClick={(event) => openConfirmModal(event, post.post_id)}
+                className="delete-button"
+              >
+                <FaTrash />
+              </button>
             </div>
-            <button
-              onClick={(event) => openConfirmModal(event, post.post_id)}
-              className="delete-button"
-            >
-              <FaTrash />
-            </button>
+            <p className="post-content">{post.contenido}</p>
+            <div className="post-footerA">
+              <button
+                onClick={(event) => handleLike(event, post.post_id)}
+                className={`ytr-button ${likedPosts[post.post_id] ? "liked" : ""}`}
+              >
+                <FaHeart className="ytr" /> {post.likes || 0}
+              </button>
+              <button
+                onClick={(event) => handleCommentClick(event, post.post_id)}
+                className="ytr-button"
+              >
+                <FaComment className="ytr" /> {post.count || 0}
+              </button>
+            </div>
           </div>
-          <p className="post-content">{post.contenido}</p>
-          <div className="post-footerA">
-            <button
-              onClick={(event) => handleLike(event, post.post_id)}
-              className={`ytr-button ${likedPosts[post.post_id] ? "liked" : ""}`}
-            >
-              <FaHeart className="ytr" /> {post.likes || 0}
-            </button>
-            <button
-              onClick={(event) => handleCommentClick(event, post.post_id)}
-              className="ytr-button"
-            >
-              <FaComment className="ytr" /> {post.count || 0}
-            </button>
-          </div>
-        </div>
-      ))}
+        ))}
+      </div>
 
       {selectedPost && (
         <PostDetail

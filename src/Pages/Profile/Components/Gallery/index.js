@@ -481,21 +481,22 @@ useEffect(() => {
   return (
     <div className="gallery">
       {videos.length === 0 ? (
-        <p>No hay videos cargados</p>
-      ) : (
-        <div className="video-grid">
-        {videos.map((video) => (
-          <div className="gallery-item" key={video.id}>
-            <video
-              src={video.url}
-              className="gallery-img"
-              onClick={() => handleVideoClick(video)}
-              controls={false}
-            ></video>
-          </div>
-        ))}
-      </div>
-      )}
+    <p className="no-videos-message">No hay videos cargados aún.</p>
+) : (
+    <div className="video-grid">
+    {videos.map((video) => (
+        <div className="gallery-item" key={video.id}>
+        <video
+            src={video.url}
+            className="gallery-img"
+            onClick={() => handleVideoClick(video)}
+            controls={false}
+        ></video>
+        </div>
+    ))}
+    </div>
+)}
+
       {selectedVideo && (
         <div className="fullscreen-video">
           <video
