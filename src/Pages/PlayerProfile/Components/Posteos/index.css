@@ -5,24 +5,15 @@
     margin: 0 auto; /* Centra el contenedor */
 }
 
-
-
-
 .posts-scroll-container {
     height: 500px; /* Ajusta este valor según tus necesidades */
     overflow-y: auto;
     padding-right: 10px;
 }
 
-
-
-
 .posts-scroll-container::-webkit-scrollbar {
     display: none;  /* Para Chrome, Safari y Opera */
 }
-
-
-
 
 .post {
     padding: 15px;
@@ -33,23 +24,11 @@
 }
 
 
-
-
-
-
-
-
 .post-header {
     display: flex;
     align-items: center;
     margin-bottom: 10px;
 }
-
-
-
-
-
-
 
 
 .user-avatar {
@@ -59,24 +38,10 @@
     margin-right: 10px;
 }
 
-
-
-
-
-
-
-
 .dxd {
     display: flex;
     flex-direction: column;
 }
-
-
-
-
-
-
-
 
 .dxd h3 {
     margin: 0;
@@ -85,24 +50,11 @@
 }
 
 
-
-
-
-
-
-
 .dxd p {
     margin: 0;
     font-size: 14px;
     color: #657786;
 }
-
-
-
-
-
-
-
 
 .post-content {
     margin-bottom: 15px;
@@ -110,24 +62,10 @@
     line-height: 1.4;
 }
 
-
-
-
-
-
-
-
 .post-footerA {
     display: flex;
     align-items: center;
 }
-
-
-
-
-
-
-
 
 .ytr-button {
     background: none;
@@ -142,33 +80,14 @@
 }
 
 
-
-
-
-
-
-
 .ytr-button.liked {
     color: #e0245e;
 }
 
 
-
-
-
-
-
-
 .ytr {
     margin-right: 5px;
 }
-
-
-
-
-
-
-
 
 .new-tweet-button {
     position: fixed;
@@ -254,18 +173,12 @@
     }
 }
 
-
-
-
 .confirm-modal-buttons {
     display: flex;
     justify-content: center;
     gap: 20px;
     margin-top: 20px;
 }
-
-
-
 
 .delete-confirm-button,
 .cancel-button {
@@ -280,19 +193,25 @@
     transition: background-color 0.3s ease;
 }
 
-
 .cancel-button {
     background-color: #888;
 }
-
-
-
 
 .delete-confirm-button:hover {
     background-color: #c81b4b;
 }
 
-
 .cancel-button:hover {
     background-color: #555;
+}
+
+.no-posts-message {
+    display: flex;
+    justify-content: center; /* Centra horizontalmente */
+    align-items: center; /* Centra verticalmente */
+    height: 300px; /* Ajusta la altura del contenedor según sea necesario */
+    font-size: 15px; /* Tamaño pequeño */
+    color: #000; /* Color negro */
+    font-style: oblique;
+    width: 100%;
 }

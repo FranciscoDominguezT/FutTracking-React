@@ -101,3 +101,15 @@
     border-radius: 10px;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2); /* Sombra para darle profundidad */
 }
+
+
+.no-posts-message {
+    display: flex;
+    justify-content: center; /* Centra horizontalmente */
+    align-items: center; /* Centra verticalmente */
+    height: 300px; /* Ajusta la altura del contenedor según sea necesario */
+    font-size: 15px; /* Tamaño pequeño */
+    color: #000; /* Color negro */
+    font-style: oblique;
+    width: 100%;
+}

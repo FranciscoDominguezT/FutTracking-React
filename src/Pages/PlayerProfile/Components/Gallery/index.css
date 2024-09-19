@@ -1,34 +1,46 @@
-body{
+body {
     overflow: hidden;
 }
+
 
 .gallery {
     display: flex;
     flex-wrap: wrap;
-    gap: 10px;
-    min-height: 597px;
+    height: 100%;
+    overflow-y: auto;
+    margin-bottom: 0px;
 }
+
 
 .video-grid {
     display: flex;
     flex-wrap: wrap;
-    gap: 10px;
-    justify-content: flex-start;
+    gap: 2px; /* Reducir al mínimo el espacio entre los videos */
+    justify-content: space-between;
+    width: 100%;
+    height: 100%;
 }
 
+
 .gallery-item {
-    width: calc(33.33% - 10px);
-    aspect-ratio: 9 / 16;
+    width: calc(33.33% - 2px); /* Mantener tres videos por fila sin modificar el tamaño original */
+    height: calc(33vw); /* Mantener la altura proporcional */
     position: relative;
     overflow: hidden;
 }
+
 
 .gallery-img {
     width: 100%;
     height: 100%;
     object-fit: cover;
     cursor: pointer;
+    border-radius: 0px; /* Sin borde redondeado */
 }
+
+
+
+
 .fullscreen-video {
     position: fixed;
     top: 50%;
@@ -42,11 +54,17 @@ body{
     z-index: 9999;
     background: black;
 }
+
+
 .fullscreen-video-player {
     width: 100%;
     height: 100%;
     object-fit: cover;
 }
+
+
+
+
 .info-player{
     position: absolute;
     bottom: 0px;
@@ -456,7 +474,7 @@ body{
 .section-comment{
     width: 100%;
     margin-bottom: 20px;
-    overflow-y: auto; 
+    overflow-y: auto;
     flex-grow: 1;
 }
 .wrapper-comment-input{
@@ -493,4 +511,16 @@ body{
     cursor: pointer;
     font-weight: bold;
     transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+
+.no-videos-message {
+    display: flex;
+    justify-content: center; /* Centra horizontalmente */
+    align-items: center; /* Centra verticalmente */
+    height: 300px; /* Ajusta la altura del contenedor según sea necesario */
+    font-size: 15px; /* Tamaño pequeño */
+    color: #000; /* Color negro */
+    font-style: oblique;
+    width: 100%;
 }
