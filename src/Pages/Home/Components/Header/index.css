@@ -1,8 +1,9 @@
+/* Header.css */
 .header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 10px;
+    padding: 5px;
     background-color: #fff;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     position: relative;
@@ -29,7 +30,8 @@
     border-radius: 20px;
     outline: none;
     transition: all 0.3s ease;
-    padding-right: 30px; 
+    padding-right: 30px;
+    margin-top: .9rem;
 }
 
 .search-icon {
@@ -38,11 +40,6 @@
     top: 50%;
     transform: translateY(-50%);
     color: #aaa;
-}
-
-.search-bar:focus {
-    border-color: #157446;
-    box-shadow: 0 0 5px rgba(21, 116, 70, 0.5);
 }
 
 .icons {

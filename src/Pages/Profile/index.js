@@ -5,7 +5,7 @@ import Tabs from "./Components/Tabs";
 import Gallery from "./Components/Gallery";
 import Posteos from "./Components/Posteos";
 import MisDatos from "./Components/MisDatos";
-import Footer from "./Components/Footer";
+import Footer from "../Home/Components/Footer";
 import './index.css';
 
 function Profile() {

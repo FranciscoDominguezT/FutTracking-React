@@ -11,6 +11,7 @@
     background-color: rgba(0, 0, 0, 0.5); /* Fondo semi-transparente */
 }
 
+
 .post-detail-content {
     background-color: white;
     padding: 20px;
@@ -23,11 +24,13 @@
     position: relative;
 }
 
+
 .post-detail-header {
     display: flex;
     align-items: center;
     margin-bottom: 20px;
 }
+
 
 .back-button {
     font-size: 20px;
@@ -38,12 +41,14 @@
     margin-right: 10px;
 }
 
+
 .post-detail-title {
     margin: 0 auto;
     font-size: 18px;
     font-weight: bold;
     color: #333;
 }
+
 
 .original-post {
     border-bottom: 1px solid #e1e8ed;
@@ -54,11 +59,13 @@
     padding: 15px;
 }
 
+
 .post-header, .comment-header {
     display: flex;
     align-items: center;
     margin-bottom: 10px;
 }
+
 
 .user-avatar {
     width: 50px;
@@ -67,9 +74,11 @@
     margin-right: 15px;
 }
 
+
 .post-info, .comment-info {
     flex-grow: 1;
 }
+
 
 .post-content, .comment-content {
     margin-bottom: 15px;
@@ -77,16 +86,19 @@
     color: #333;
 }
 
+
 .comment-footer {
     display: flex;
     justify-content: space-between;
 }
+
 
 .post-footer {
     display: flex;
     align-items: center;
     gap: 1rem;
 }
+
 
 .action-button {
     background: none;
@@ -99,17 +111,21 @@
     transition: color 0.2s;
 }
 
+
 .action-button.liked {
     color: #e0245e;
 }
+
 
 .action-button svg {
     margin-right: 5px;
 }
 
+
 .comments-section {
     margin-top: 20px;
 }
+
 
 .comments-scroll-container {
     max-height: 300px;
@@ -117,11 +133,13 @@
     padding-right: 10px;
 }
 
+
 .comments-scroll-container::-webkit-scrollbar {
     display: none;
 }
 
-.comment {
+
+.commentRT {
     border-bottom: 1px solid #e1e8ed;
     padding: 15px 0;
     background-color: #f9f9f9;
@@ -130,9 +148,11 @@
     padding: 10px;
 }
 
+
 .comment:last-child {
     border-bottom: none;
 }
+
 
 .comment-likes {
     background: none;
@@ -146,13 +166,16 @@
     transition: color 0.2s;
 }
 
+
 .comment-likes.liked {
     color: #e0245e;
 }
 
+
 .comment-likes svg {
     margin-right: 5px;
 }
+
 
 .reply-button {
     display: flex;
@@ -163,6 +186,7 @@
     gap: .25rem;
 }
 
+
 .delete-button {
     background: none;
     border: none;
@@ -171,6 +195,7 @@
     font-size: 16px;
     margin-left: auto;
 }
+
 
 .delete-button:hover {
     color: #e0245e;

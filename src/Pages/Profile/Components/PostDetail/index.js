@@ -4,6 +4,7 @@ import { FaHeart, FaComment, FaArrowLeft, FaTrash } from "react-icons/fa";
 import NewCommentModal from "../NewCommentModal";
 import "./index.css";
 
+
 const PostDetail = ({
   post,
   onClose,
@@ -20,9 +21,11 @@ const PostDetail = ({
     ...post,
   });
 
+
   const [isCommentModalOpen, setIsCommentModalOpen] = useState(false);
   const [selectedParentId, setSelectedParentId] = useState(null);
   const [likedComments, setLikedComments] = useState({});
+
 
   useEffect(() => {
     console.log("Selected post:", post);
@@ -33,11 +36,13 @@ const PostDetail = ({
     }
   }, [post]);
 
+
   const fetchComments = async () => {
     if (!post || !post.post_id) {
       console.error("Post or post.id is undefined");
       return;
     }
+
 
     try {
       const response = await axios.get(
@@ -50,6 +55,7 @@ const PostDetail = ({
     }
   };
 
+
   const handleLocalLike = (event) => {
     onLike(event, localPost.id);
     setLocalPost((prevPost) => ({
@@ -58,15 +64,18 @@ const PostDetail = ({
     }));
   };
 
+
   const handleLocalDelete = async (event) => {
     await onDelete(event, localPost.post_id);
     onClose();
     fetchPosts();
   };
 
+
   const handleCommentCreated = (newComment) => {
     setComments([...comments, newComment]);
   };
+
 
   const handleDeleteComment = async (commentId) => {
     if (
@@ -85,12 +94,14 @@ const PostDetail = ({
     }
   };
 
+
   const convertToLocalTime = (utcDateString) => {
     const date = new Date(utcDateString);
     return date.toLocaleString("es-AR", {
       timeZone: "America/Argentina/Buenos_Aires",
     });
   };
+
 
   useEffect(() => {
     const storedLikes = localStorage.getItem("likedComments");
@@ -99,10 +110,12 @@ const PostDetail = ({
     }
   }, []);
 
+
   const handleCommentLike = async (commentId, currentLikes) => {
     try {
       const isLiked = likedComments[commentId];
       const newLikeCount = isLiked ? currentLikes - 1 : currentLikes + 1;
+
 
       const response = await axios.put(
         `http://localhost:5001/api/comments/${commentId}/like`,
@@ -116,6 +129,7 @@ const PostDetail = ({
         )
       );
 
+
       const newLikedComments = {
         ...likedComments,
         [commentId]: !isLiked,
@@ -127,15 +141,18 @@ const PostDetail = ({
     }
   };
 
+
   const renderComments = () => {
     const commentTree = [];
     const commentMap = {};
+
 
     // Construir un mapa de comentarios por id
     comments.forEach((comment) => {
       comment.children = [];
       commentMap[comment.comment_id] = comment;
     });
+
 
     // Construir la estructura de árbol
     comments.forEach((comment) => {
@@ -148,12 +165,13 @@ const PostDetail = ({
       }
     });
 
+
     // Renderizar el árbol de comentarios
     const renderCommentBranch = (commentBranch, depth = 0) => {
       return commentBranch.map((comment) => (
         <div
           key={comment.comment_id}
-          className="comment"
+          className="commentRT"
           style={{ marginLeft: `${depth * 20}px` }}
         >
           <div className="comment-header">
@@ -203,8 +221,10 @@ const PostDetail = ({
       ));
     };
 
+
     return renderCommentBranch(commentTree);
   };
+
 
   return (
     <div className="post-detail-overlay">
@@ -270,5 +290,6 @@ const PostDetail = ({
     </div>
   );
 };
+
 
 export default PostDetail;

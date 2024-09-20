@@ -14,10 +14,6 @@ const ProfileInfo = ({ onEditClick }) => {
 
   useEffect(() => {
     const fetchProfile = async () => {
-      if (!token) {
-        navigate("/login");
-        return;
-      }
 
       try {
         const api = getAuthenticatedAxios();

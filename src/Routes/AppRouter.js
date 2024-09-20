@@ -5,6 +5,7 @@ import Register from '../Pages/Register';
 import Profile from '../Pages/Profile';
 import PlayerProfile from '../Pages/PlayerProfile';
 import FilterScreen from '../Pages/Home/Components/FilterScreen';
+import SearchResultsPage from '../Pages/Home/Components/SearchResultsPage';
 
 const AppRouter = () => {
   return (
@@ -15,6 +16,7 @@ const AppRouter = () => {
       <Route path="/register" element={<Register />} />
       <Route path="/filter" element={<FilterScreen />} />
       <Route path="/playerProfile/:usuario_id" element={<PlayerProfile />} />
+      <Route path="/search" element={<SearchResultsPage />} />
     </Routes>
   );
 };

@@ -16,7 +16,7 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const [passwordVisible, setPasswordVisible] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
-  const { setAuthError } = useContext(AuthContext);
+  const { setUser, setToken, setAuthError } = useContext(AuthContext);
   const navigate = useNavigate();
 
   const togglePasswordVisibility = () => {
@@ -46,7 +46,10 @@ const Login = () => {
         { email, password }
       );
 
-      localStorage.setItem("token", response.data.token);
+      const { token, user } = response.data;
+      localStorage.setItem("token", token);
+      setToken(token);
+      setUser(user);
       navigate("/home");
     } catch (error) {
       setAuthError("Credenciales inválidas. Intente nuevamente.");
@@ -54,8 +57,9 @@ const Login = () => {
     }
   };
 
+
   const handleGoogleLogin = async (e) => {
-    e.preventDefault(); // Esto evita que el formulario se envíe
+    e.preventDefault();
     try {
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: "google",
@@ -64,11 +68,10 @@ const Login = () => {
         },
       });
       if (error) throw error;
-      // No se lanza ningún alert innecesario
+      // No necesitamos hacer nada más aquí, ya que el AuthContext manejará la respuesta de Google
     } catch (error) {
       console.error("Error durante el inicio de sesión con Google", error);
       setAuthError("Error al iniciar sesión con Google");
-      // Mostrar mensaje de error solo si hay un problema real con Google
     }
   };
 

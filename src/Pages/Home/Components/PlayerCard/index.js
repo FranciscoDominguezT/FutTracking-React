@@ -23,7 +23,7 @@ const PlayerCard = ({ player }) => {
         />
         <div className="filter-info">
           <h3 className="filter-name">{`${player.nombre} ${player.apellido}`}</h3>
-          <p className="filter-details">{`${player.edad}y | ${player.posicion}`}</p>
+          <p className="filter-details">{`${player.edad}y | ${player.posicion_nombre}`}</p>
           <p className="filter-details">{player.equipo_nombre}</p>
           <p className="filter-details">{`${player.altura}cm | ${player.peso}kg`}</p>
         </div>
