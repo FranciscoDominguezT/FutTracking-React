@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
+import { AuthContext } from "../../Context/auth-context";
 import Header from "./Components/Header";
 import ProfileInfo from "./Components/ProfileInfo";
 import Tabs from "./Components/Tabs";
@@ -10,6 +11,7 @@ import './index.css';
 
 function Profile() {
     const [activeTab, setActiveTab] = useState('Videos');
+    const { user } = useContext(AuthContext);
 
     // Recuperar la pestaña activa desde localStorage cuando el componente se monta
     useEffect(() => {
@@ -35,7 +37,7 @@ function Profile() {
             <ProfileInfo onEditClick={handleEditClick} />
             <Tabs activeTab={activeTab} onTabChange={handleTabChange} />
             <main className="profile-main">
-                {activeTab === 'Videos' && <Gallery />}
+                {activeTab === 'Videos' && <Gallery isUserProfile={true} />} {/* Usamos la prop isUserProfile */}
                 {activeTab === 'Posteos' && <Posteos />}
                 {activeTab === 'MisDatos' && <MisDatos />}
             </main>

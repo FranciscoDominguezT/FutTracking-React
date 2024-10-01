@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useContext } from 'react';
 import axios from 'axios';
 import {
   FaPlay,
@@ -15,10 +15,11 @@ import {
 } from "react-icons/fa";
 import { FaRegEnvelope } from "react-icons/fa6";
 import "./index.css";
+import {AuthContext} from "../../../../Context/auth-context"
 
 const API_BASE_URL = 'http://localhost:5001/api';
 
-const Gallery = () => {
+const Gallery = ({ usuarioId, isUserProfile = false }) => {
   const [videos, setVideos] = useState([]);
   const [selectedVideo, setSelectedVideo] = useState(null);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -48,18 +49,34 @@ const Gallery = () => {
   const commentMenuRef = useRef();
   const progressBarRef = useRef();
 
+  const { user } = useContext(AuthContext);
+
   useEffect(() => {
     const fetchVideos = async () => {
       try {
         const token = localStorage.getItem('token');
-        console.log('Token JWT:', token);
-        const response = await fetch(`${API_BASE_URL}/userProfile/videos`, {
-          headers: {
-            'Authorization': `Bearer ${token}`
+
+        let url;
+        if (isUserProfile) {
+          // Si es el perfil del usuario logueado
+          url = `${API_BASE_URL}/userProfile/my-videos`;
+        } else {
+          // Si es el perfil de otro jugador
+          if (!usuarioId) {
+            console.error("usuarioId no está definido");
+            return;
           }
+          url = `${API_BASE_URL}/userProfile/videos/${usuarioId}`;
+        }
+
+        const response = await fetch(url, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+          },
         });
+
         const data = await response.json();
-        
+
         if (response.ok) {
           if (data.message === "No hay videos cargados") {
             setVideos([]);
@@ -73,10 +90,10 @@ const Gallery = () => {
         console.error("Error al obtener los videos:", error);
       }
     };
+
     fetchVideos();
-  }, []);
-
-
+  }, [usuarioId, isUserProfile]);
+  
   useEffect(() => {
     const fetchProfile = async () => {
       try {
@@ -478,24 +495,24 @@ useEffect(() => {
       });
   };
 
-  return (
-    <div className="gallery">
-      {videos.length === 0 ? (
-    <p className="no-videos-message">No hay videos cargados aún.</p>
-) : (
-    <div className="video-grid">
-    {videos.map((video) => (
-        <div className="gallery-item" key={video.id}>
-        <video
-            src={video.url}
-            className="gallery-img"
-            onClick={() => handleVideoClick(video)}
-            controls={false}
-        ></video>
-        </div>
-    ))}
-    </div>
-)}
+        return (
+          <div className="gallery">
+            {videos.length === 0 ? (
+          <p className="no-videos-message">No hay videos cargados aún.</p>
+      ) : (
+          <div className="video-grid">
+          {videos.map((video) => (
+              <div className="gallery-item" key={video.id}>
+              <video
+                  src={video.url}
+                  className="gallery-img"
+                  onClick={() => handleVideoClick(video)}
+                  controls={false}
+              ></video>
+              </div>
+          ))}
+          </div>
+      )}
 
       {selectedVideo && (
         <div className="fullscreen-video">

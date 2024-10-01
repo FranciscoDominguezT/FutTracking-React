@@ -59,6 +59,10 @@ const Main = () => {
         setLikes(videoResponse.data.likes);
         setLiked(videoResponse.data.liked);
 
+        const userResponse = await axios.get(`${API_BASE_URL}/videos/player/${videoResponse.data.usuarioid}`);
+        console.log("User data:", userResponse.data);
+        setUserData(userResponse.data);
+
         // const commentsResponse = await axios.get(`${API_BASE_URL}/videos/${videoId}/comments`);
         // console.log("Video comments:", commentsResponse.data);
         // setComments(commentsResponse.data);
@@ -499,18 +503,25 @@ useEffect(() => {
           </div>
         </div>
         <div className="user-info">
-          <img
-            src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTjDM0PhKJ_GdWFpZd6zUh3lENRBqkScnZ4Cg&s"
-            alt="Player Profile"
-            className="user-profile-img"
-          />
-          <div className="user-details">
-            <p className="user-name">Ruben Botta</p>
-            <p className="user-location">CABA, Buenos Aires, Argentina</p>
-          </div>
-          <button className="follow-button" onClick={handleFollowToggle}>
-          {isFollowing ? "Siguiendo" : "Seguir"}
-          </button>        </div>
+          {userData ? (
+            <>
+              <img
+                src={userData.avatar_url || "/default-avatar.png"}
+                alt="Player Profile"
+                className="user-profile-img"
+              />
+              <div className="user-details">
+                <p className="user-name">{`${userData.nombre} ${userData.apellido}`}</p>
+                <p className="user-location">{`${userData.provincia_nombre || ''}, ${userData.nacion_nombre || ''}`}</p>
+              </div>
+              <button className="follow-button" onClick={handleFollowToggle}>
+                {isFollowing ? "Siguiendo" : "Seguir"}
+              </button>
+            </>
+          ) : (
+            <p>Cargando información del usuario...</p>
+          )}
+        </div>
         <div className="stats">
           <div
             className="stat"
