@@ -56,12 +56,26 @@ const PostDetail = ({
   };
 
 
-  const handleLocalLike = (event) => {
-    onLike(event, localPost.id);
-    setLocalPost((prevPost) => ({
-      ...prevPost,
-      likes: likedPosts[prevPost.id] ? prevPost.likes - 1 : prevPost.likes + 1,
-    }));
+  const handleLocalLike = async (event) => {
+    event.preventDefault();
+
+    try {
+      const response = await axios.put(
+        `http://localhost:5001/api/posts/${localPost.post_id}/like`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
+      setLocalPost((prevPost) => ({
+        ...prevPost,
+        likes: response.data.likes,
+      }));
+    } catch (error) {
+      console.error("Error al likear el post:", error);
+    }
   };
 
 

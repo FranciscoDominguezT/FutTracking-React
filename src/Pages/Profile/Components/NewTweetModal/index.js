@@ -1,30 +1,16 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
+import { AuthContext } from '../../../../Context/auth-context';
 import './index.css';
 
 const NewTweetModal = ({ isOpen, onClose, onTweetCreated }) => {
   const [content, setContent] = useState('');
+  const { user, token } = useContext(AuthContext);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!content.trim()) return;
   
     try {
-      const token = localStorage.getItem('token');
-      
-      // Obtener los datos del usuario ANTES de crear el tweet
-      const userResponse = await fetch('http://localhost:5001/api/user/userdata', {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-  
-      if (!userResponse.ok) {
-        throw new Error('Error fetching user data');
-      }
-  
-      const userData = await userResponse.json();
-  
-      // Crear el nuevo post
       const response = await fetch('http://localhost:5001/api/posts', {
         method: 'POST',
         headers: {
@@ -33,10 +19,7 @@ const NewTweetModal = ({ isOpen, onClose, onTweetCreated }) => {
         },
         body: JSON.stringify({
           contenido: content,
-          usuario_id: userData.usuario_id,  // Asigna el usuario logueado al post
-          nombre: userData.nombre,
-          apellido: userData.apellido,
-          avatar_url: userData.avatar_url
+          videourl: '' // Añade esto si es necesario
         })
       });
   
@@ -46,12 +29,11 @@ const NewTweetModal = ({ isOpen, onClose, onTweetCreated }) => {
   
       const newTweet = await response.json();
   
-      // Añadir los datos del usuario al nuevo tweet antes de enviarlo al frontend
       const newTweetWithUserData = {
         ...newTweet,
-        nombre: userData.nombre,
-        apellido: userData.apellido,
-        avatar_url: userData.avatar_url
+        nombre: user.nombre,
+        apellido: user.apellido,
+        avatar_url: user.avatar_url
       };
   
       onTweetCreated(newTweetWithUserData);
@@ -61,7 +43,6 @@ const NewTweetModal = ({ isOpen, onClose, onTweetCreated }) => {
       console.error('Error creating tweet:', error);
     }
   };
-  
 
   if (!isOpen) return null;
 

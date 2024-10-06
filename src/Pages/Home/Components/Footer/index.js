@@ -12,25 +12,25 @@ import Home from '../..';
 
 const Footer = () => {
     return (
-        <div class="footer-icons">
-                <div class="footer-icon">
-                    <Link to="/home"><img src={home} alt="Logo" class="footer-icon-icon"/></Link>
+        <div className="footer-icons">
+                <div className="footer-icon">
+                    <Link to="/home"><img src={home} alt="Logo" className="footer-icon-icon"/></Link>
                     <span className='spa'>Inicio</span>
                 </div>
-                <div class="footer-icon">
-                    <img src={comments} alt="Logo" class="footer-icon-icon"/>
+                <div className="footer-icon">
+                    <img src={comments} alt="Logo" className="footer-icon-icon"/>
                     <span className='spa'>Mensajes</span>
                 </div>
-                <div class="footer-icon">
-                    <img src={camera} alt="Logo" class="footer-icon-icon"/>
+                <div className="footer-icon">
+                    <img src={camera} alt="Logo" className="footer-icon-icon"/>
                     <span className='spa'>Cámara</span>
                 </div>
-                <div class="footer-icon">
-                    <img src={envelope} alt="Logo" class="footer-icon-icon"/>
+                <div className="footer-icon">
+                    <img src={envelope} alt="Logo" className="footer-icon-icon"/>
                     <span className='spa'>Community</span>
                 </div>
-                <div class="footer-icon">
-                    <img src={user} alt="Logo" class="footer-icon-icon"/>
+                <div className="footer-icon">
+                    <img src={user} alt="Logo" className="footer-icon-icon"/>
                     <span className='spa'>Perfil</span>
                 </div>
             </div>

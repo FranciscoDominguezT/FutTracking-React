@@ -1,9 +1,10 @@
+
 import React, { useState } from "react";
 import { FaCheckCircle, FaCrown, FaUserFriends, FaEnvelope, FaEye, FaTimes } from "react-icons/fa";
 import "./index.css";
 
 
-const Contactar = () => {
+const MasInfo = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
 
@@ -20,7 +21,7 @@ const Contactar = () => {
   return (
     <div className="contact-container">
       <p className="contact-message">
-        Para contactar a este jugador, necesitas una suscripción premium.
+        Para ver mas información de este jugador, necesitas una suscripción premium.
       </p>
       <button className="subscribe-button" onClick={handleSubscribeClick}>
         Adquirir Suscripción
@@ -70,4 +71,4 @@ const Contactar = () => {
 };
 
 
-export default Contactar;
+export default MasInfo;

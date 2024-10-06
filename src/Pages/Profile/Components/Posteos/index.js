@@ -3,6 +3,7 @@ import { FaHeart, FaComment, FaPlus, FaTrash } from "react-icons/fa";
 import NewTweetModal from "../NewTweetModal";
 import PostDetail from "../PostDetail";
 import NewCommentModal from "../NewCommentModal";
+import axios from "axios";
 import "./index.css";
 
 const Posteos = () => {
@@ -51,31 +52,41 @@ const Posteos = () => {
     event.stopPropagation();
     try {
       const isLiked = likedPosts[postId];
-      const response = await fetch(
-        `http://localhost:5001/api/posts/${postId}/like`,
+      const token = localStorage.getItem('token');
+  
+      // Realizar la solicitud con axios
+      const response = await axios.put(
+        `http://localhost:5001/api/posts/${postId}/like`, 
+        {}, 
         {
-          method: "PUT",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         }
       );
-      const data = await response.json();
-
+  
+      // Obtener los datos directamente de response.data
+      const data = response.data;
+  
+      // Actualizar los likes del post específico
       setPosts(
         posts.map((post) =>
           post.post_id === postId ? { ...post, likes: data.likes } : post
         )
       );
-
+  
+      // Actualizar el estado de likedPosts
       const newLikedPosts = {
         ...likedPosts,
         [postId]: !isLiked,
       };
-
+  
       setLikedPosts(newLikedPosts);
       saveLikedPosts(newLikedPosts);
     } catch (error) {
       console.error("Error updating likes:", error);
     }
-  };
+  };  
 
   const handleDeleteTweet = async (postId) => {
     if (!postId || typeof postId !== "number") {
@@ -185,7 +196,7 @@ const Posteos = () => {
                   onClick={(event) => handleCommentClick(event, post.post_id)}
                   className="ytr-button"
                 >
-                  <FaComment className="ytr" /> {post.count || 0}
+                  <FaComment className="ytr" /> {parseInt(post.count, 10) || 0}
                 </button>
               </div>
             </div>

@@ -16,7 +16,7 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const [passwordVisible, setPasswordVisible] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
-  const { setUser, setToken, setAuthError } = useContext(AuthContext);
+  const { setUser, setToken, setAuthError, fetchUserData } = useContext(AuthContext);
   const navigate = useNavigate();
 
   const togglePasswordVisibility = () => {
@@ -33,23 +33,23 @@ const Login = () => {
   const handleLogin = async (e) => {
     e.preventDefault();
     setAuthError(null);
-
+  
     if (!email || !password) {
       setAuthError("Por favor, ingrese todos los campos");
       showAlert("Por favor, ingrese todos los campos");
       return;
     }
-
+  
     try {
       const response = await axios.post(
         "http://localhost:5001/api/login/login",
         { email, password }
       );
-
-      const { token, user } = response.data;
+  
+      const { token } = response.data;
       localStorage.setItem("token", token);
       setToken(token);
-      setUser(user);
+      await fetchUserData(token);
       navigate("/home");
     } catch (error) {
       setAuthError("Credenciales inválidas. Intente nuevamente.");

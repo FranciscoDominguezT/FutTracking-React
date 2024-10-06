@@ -47,7 +47,7 @@ const Header = () => {
       <UserSearch />
       <div className="icons">
         <Link to="/filter"><img src={filter} alt="Logo" className="icon" /></Link>
-        <img src={settings} alt="Logo" className="icon" />
+        <Link to="/config"><img src={settings} alt="Logo" className="icon" /></Link>
       </div>
     </header>
   );

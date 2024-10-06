@@ -6,6 +6,8 @@ import Tabs from "./Components/Tabs";
 import Footer from "./Components/Footer";
 import Gallery from "./Components/Gallery";
 import Posteos from "./Components/Posteos"
+import MasInfo from "./Components/MasInfo";
+import Contactar from "./Components/Contactar";
 import './index.css';
 
 function PlayerProfile() {
@@ -38,6 +40,8 @@ function PlayerProfile() {
             <main className="profile-main">
                 {activeTab === 'Videos' && <Gallery usuarioId={usuario_id} />}
                 {activeTab === 'Posteos' && <Posteos userId={usuario_id} />}
+                {activeTab === 'Mas Info' && <MasInfo userId={usuario_id} />}
+                {activeTab === 'Contactar' && <Contactar userId={usuario_id} />}
             </main>
             <footer className="footer">
                 <Footer />
