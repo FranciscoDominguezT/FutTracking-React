@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import axios from 'axios';
 import './index.css';
 import { Link } from 'react-router-dom';
@@ -7,20 +7,20 @@ import UserSearch from '../UserSearch';
 import user from './images/icons8-user-30.png';
 import filter from './images/icons8-mezclador-horizontal-ajustes-30.png';
 import settings from './images/icons8-ajustes-50.png';
+import { AuthContext } from '../../../../Context/auth-context';
 
 const Header = () => {
   const [avatarUrl, setAvatarUrl] = useState(null);
+  const { token } = useContext(AuthContext);
 
   useEffect(() => {
-    // Llamada al backend para obtener el avatar del usuario logueado
     const fetchAvatar = async () => {
       try {
-        const token = localStorage.getItem('token');
         if (!token) {
           console.error('No token found');
           return;
         }
-    
+
         const response = await axios.get('http://localhost:5001/api/user/avatar', {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -33,7 +33,7 @@ const Header = () => {
     };
 
     fetchAvatar();
-  }, []);
+  }, [token]);
 
   return (
     <header className="header">

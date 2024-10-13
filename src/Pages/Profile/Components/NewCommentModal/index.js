@@ -9,7 +9,7 @@ const NewCommentModal = ({ isOpen, onClose, onCommentCreated, postId, parentId =
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!content.trim()) return;
-
+  
     try {
       const response = await fetch(`http://localhost:5001/api/posts/${postId}/comments`, {
         method: 'POST',
@@ -22,21 +22,14 @@ const NewCommentModal = ({ isOpen, onClose, onCommentCreated, postId, parentId =
           parentid: parentId
         })
       });
-
+  
       if (!response.ok) {
         throw new Error('Error creating comment');
       }
-
+  
       const newComment = await response.json();
-
-      const newCommentWithUserData = {
-        ...newComment,
-        nombre: user.nombre,
-        apellido: user.apellido,
-        avatar_url: user.avatar_url
-      };
-
-      onCommentCreated(newCommentWithUserData);
+  
+      onCommentCreated(newComment);
       setContent('');
       onClose();
     } catch (error) {
@@ -49,17 +42,17 @@ const NewCommentModal = ({ isOpen, onClose, onCommentCreated, postId, parentId =
   return (
     <div className="modal-overlay">
       <div className="modal-content">
-        <h2>New Comment</h2>
+        <h2>{parentId ? "Nueva Respuesta" : "Nuevo Comentario"}</h2>
         <form onSubmit={handleSubmit}>
           <textarea
             value={content}
             onChange={(e) => setContent(e.target.value)}
-            placeholder="What's your comment?"
+            placeholder={parentId ? "Escribe tu respuesta..." : "Escribe tu comentario..."}
             maxLength={280}
           />
           <div className="modal-actions">
-            <button type="button" onClick={onClose}>Cancel</button>
-            <button type="submit">Comment</button>
+            <button type="button" onClick={onClose}>Cancelar</button>
+            <button type="submit">{parentId ? "Responder" : "Comentar"}</button>
           </div>
         </form>
       </div>

@@ -5,7 +5,7 @@ import { AuthContext } from '../../../../../../Context/auth-context';
 
 const API_BASE_URL = 'http://localhost:5001/api';
 
-const CommentMenu = ({ comments, selectedVideo, onClose, onCommentSubmit }) => {
+const CommentSection = ({ comments, selectedVideo, onClose, onCommentSubmit }) => {
   const [newComment, setNewComment] = useState("");
   const [replyTo, setReplyTo] = useState(null);
   const [likedComments, setLikedComments] = useState({});
@@ -52,7 +52,6 @@ const CommentMenu = ({ comments, selectedVideo, onClose, onCommentSubmit }) => {
       console.error("Error updating comment likes:", error);
     }
   };
-
   const handleDeleteComment = async (commentId) => {
     console.log(`Intentando borrar comentario:`, commentId);
     try {
@@ -101,7 +100,7 @@ const CommentMenu = ({ comments, selectedVideo, onClose, onCommentSubmit }) => {
         parent_id: replyTo || null
       });
   
-      const response = await axios.post(`${API_BASE_URL}/comments/${selectedVideo.id}/comments`, {
+      const response = await axios.post(`${API_BASE_URL}/comments/${selectedVideo.usuarioid}/comments`, {
         contenido: newComment,
         parent_id: replyTo || null
       }, {
@@ -138,10 +137,6 @@ const CommentMenu = ({ comments, selectedVideo, onClose, onCommentSubmit }) => {
         const areRepliesVisible = visibleReplies[comment.id];
 
         const userId = user?.id;
-        console.log('User in CommentMenu:', user);
-        console.log('UserId in CommentMenu:', userId)
-        console.log(`¿Puede borrar?:`, userId && comment && userId === comment.usuarioid);
-        console.log(`Comentario ID: ${comment.id}, Usuario del comentario: ${comment.usuarioid}, Usuario autenticado: ${userId}`);
 
         return (
           <div key={comment.id} className="comment">
@@ -254,4 +249,4 @@ const CommentMenu = ({ comments, selectedVideo, onClose, onCommentSubmit }) => {
   );
 };
 
-export default CommentMenu;
+export default CommentSection;

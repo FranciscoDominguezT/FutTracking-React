@@ -1,65 +1,35 @@
-import React, { useState, useEffect } from 'react';
-import supabase from '../../../../Configs/supabaseClient';
+import React, { useState, useContext } from 'react';
+import { AuthContext } from '../../../../Context/auth-context';
 import './index.css';
 
 const NewCommentModal = ({ isOpen, onClose, onCommentCreated, postId, parentId = null }) => {
   const [content, setContent] = useState('');
-  const [currentUser, setCurrentUser] = useState(null);
-
-  useEffect(() => {
-    // Fetch the current user data
-    const fetchCurrentUser = async () => {
-      try {
-        const { data, error } = await supabase
-          .from('usuarios')
-          .select(`
-            id,
-            nombre,
-            apellido,
-            perfil_jugadores (
-              avatar_url
-            )
-          `)
-          .eq('id', 11) // Assuming the current user ID is 11
-          .single();
-          
-        if (error) throw error;
-        setCurrentUser(data);
-      } catch (error) {
-        console.error("Error fetching current user:", error);
-      }
-    };
-
-    fetchCurrentUser();
-  }, []);
+  const { user, token } = useContext(AuthContext);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!content.trim()) return;
-
+  
     try {
-      const { data, error } = await supabase
-        .from('respuestas_posteos')
-        .insert([
-          {
-            posteoid: postId,
-            usuarioid: currentUser.id, // Use the current user ID
-            contenido: content,
-            fechapublicacion: new Date().toISOString(),
-            likes: 0,
-            parentid: parentId
-          }
-        ])
-        .select();
-
-      if (error) throw error;
-
-      const newCommentWithUserData = {
-        ...data[0],
-        usuarios: currentUser
-      };
-
-      onCommentCreated(newCommentWithUserData);
+      const response = await fetch(`http://localhost:5001/api/posts/${postId}/comments`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          contenido: content,
+          parentid: parentId
+        })
+      });
+  
+      if (!response.ok) {
+        throw new Error('Error creating comment');
+      }
+  
+      const newComment = await response.json();
+  
+      onCommentCreated(newComment);
       setContent('');
       onClose();
     } catch (error) {
@@ -72,17 +42,17 @@ const NewCommentModal = ({ isOpen, onClose, onCommentCreated, postId, parentId =
   return (
     <div className="modal-overlay">
       <div className="modal-content">
-        <h2>New Comment</h2>
+        <h2>{parentId ? "Nueva Respuesta" : "Nuevo Comentario"}</h2>
         <form onSubmit={handleSubmit}>
           <textarea
             value={content}
             onChange={(e) => setContent(e.target.value)}
-            placeholder="What's your comment?"
+            placeholder={parentId ? "Escribe tu respuesta..." : "Escribe tu comentario..."}
             maxLength={280}
           />
           <div className="modal-actions">
-            <button type="button" onClick={onClose}>Cancel</button>
-            <button type="submit">Comment</button>
+            <button type="button" onClick={onClose}>Cancelar</button>
+            <button type="submit">{parentId ? "Responder" : "Comentar"}</button>
           </div>
         </form>
       </div>

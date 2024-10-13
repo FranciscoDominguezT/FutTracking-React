@@ -27,7 +27,7 @@ const Main = () => {
   const [isFollowing, setIsFollowing] = useState(false);
   const [userData, setUserData] = useState(null);
 
-  const { user } = useContext(AuthContext);
+  const { user, token } = useContext(AuthContext);
   const [currentUserId, setCurrentUserId] = useState(null);
 
   useEffect(() => {
@@ -122,7 +122,11 @@ const Main = () => {
 
   const handleLikeClick = async () => {
     try {
-      const response = await axios.post(`${API_BASE_URL}/videos/${selectedVideo.id}/like`);
+      const response = await axios.post(`${API_BASE_URL}/videos/${selectedVideo.id}/like`, {}, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
       setLikes(response.data.likes);
       setLiked(response.data.liked);
     } catch (error) {
@@ -130,6 +134,7 @@ const Main = () => {
     }
   };
 
+  
   const handleFollowToggle = async () => {
     if (!selectedVideo) return;
     try {
@@ -139,6 +144,8 @@ const Main = () => {
       console.error("Error toggling follow status:", error);
     }
   };
+
+  
 
   return (
     <div className="image-container">

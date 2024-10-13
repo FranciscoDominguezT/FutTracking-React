@@ -15,7 +15,6 @@ const MisDatos = () => {
     });
     const [naciones, setNaciones] = useState([]);
     const [provincias, setProvincias] = useState([]);
-    const [rol, setRol] = useState('');
 
     useEffect(() => {
         fetchUserData();
@@ -37,29 +36,21 @@ const MisDatos = () => {
                 }
             });
             setUserData(response.data);
-            setRol(response.data.rol);
-            if (response.data.rol === 'Jugador') {
-                setEditData({
-                    edad: response.data.edad || '',
-                    altura: response.data.altura || '',
-                    nacion_id: response.data.nacion_id || '',
-                    provincia_id: response.data.provincia_id || '',
-                    email: response.data.email || ''
-                });
-            }
+            setEditData({
+                edad: response.data.edad || '',
+                altura: response.data.altura || '',
+                nacion_id: response.data.nacion_id || '',
+                provincia_id: response.data.provincia_id || '',
+                email: response.data.email || ''
+            });
         } catch (error) {
-            console.error('Error fetching user data:', error.response?.data || error.message);
+            console.error('Error fetching user data:', error);
         }
     };
 
     const fetchNaciones = async () => {
         try {
-            const token = localStorage.getItem('token');
-            const response = await axios.get('http://localhost:5001/api/user/naciones', {
-                headers: {
-                    Authorization: `Bearer ${token}`
-                }
-            });
+            const response = await axios.get('http://localhost:5001/api/user/naciones');
             setNaciones(response.data);
         } catch (error) {
             console.error('Error fetching naciones:', error);
@@ -94,8 +85,6 @@ const MisDatos = () => {
                 }
             });
             alert('Datos actualizados correctamente');
-            setEditing(false);
-            fetchUserData(); // Refresca los datos después de editar
         } catch (error) {
             console.error('Error updating user data:', error);
         }
@@ -108,85 +97,75 @@ const MisDatos = () => {
     return (
         <div className={`mis-datos-container ${editing ? 'editing' : ''}`}>
             <h2>Mis Datos <FaPencilAlt onClick={handleEdit} className="edit-icon" /></h2>
-            {rol === 'Aficionado' ? (
+            {!editing ? (
                 <div className="datos-list">
-                    <p><strong>Nacionalidad:</strong> No especificada</p>
-                    <p><strong>Correo electrónico:</strong> {userData?.email}</p>
-                    <p><strong>Teléfono:</strong> No especificado</p>
-                    <p><strong>Residencia:</strong> No especificado</p>
+                    <p><strong>Nacionalidad:</strong> {naciones.find(n => n.id === userData.nacion_id)?.nombre}</p>
+                    <p><strong>Correo electrónico:</strong> {userData.email}</p>
+                    <p><strong>Residencia:</strong> {provincias.find(p => p.id === userData.provincia_id)?.nombre}</p>
+                    <p><strong>Edad:</strong> {userData.edad}</p>
+                    <p><strong>Altura:</strong> {userData.altura} cm</p>
                 </div>
             ) : (
-                <>
-                    <div className="datos-list">
-                        <p><strong>Nacionalidad:</strong> {naciones.find(n => n.id === userData.nacion_id)?.nombre || "No especificada"}</p>
-                        <p><strong>Correo electrónico:</strong> {userData?.email}</p>
-                        <p><strong>Residencia:</strong> {provincias.find(p => p.id === userData.provincia_id)?.nombre || "No especificada"}</p>
-                        <p><strong>Edad:</strong> {userData.edad || "No especificada"}</p>
-                        <p><strong>Altura:</strong> {userData.altura || "No especificada"} cm</p>
+                <form onSubmit={handleSubmit} className="edit-form">
+                    <div>
+                        <label>Nacionalidad:</label>
+                        <select 
+                            name="nacion_id" 
+                            value={editData.nacion_id} 
+                            onChange={handleChange}
+                        >
+                            <option value="">Seleccionar...</option>
+                            {naciones.map(nacion => (
+                                <option key={nacion.id} value={nacion.id}>{nacion.nombre}</option>
+                            ))}
+                        </select>
                     </div>
-                    {editing && (
-                        <form onSubmit={handleSubmit} className="edit-form">
-                            <div>
-                                <label>Nacionalidad:</label>
-                                <select 
-                                    name="nacion_id" 
-                                    value={editData.nacion_id} 
-                                    onChange={handleChange}
-                                >
-                                    <option value="">Seleccionar...</option>
-                                    {naciones.map(nacion => (
-                                        <option key={nacion.id} value={nacion.id}>{nacion.nombre}</option>
-                                    ))}
-                                </select>
-                            </div>
-                            <div>
-                                <label>Correo electrónico:</label>
-                                <input 
-                                    type="email" 
-                                    name="email" 
-                                    value={editData.email} 
-                                    onChange={handleChange}
-                                />
-                            </div>
-                            <div>
-                                <label>Residencia:</label>
-                                <select 
-                                    name="provincia_id" 
-                                    value={editData.provincia_id} 
-                                    onChange={handleChange}
-                                >
-                                    <option value="">Seleccionar...</option>
-                                    {provincias.map(provincia => (
-                                        <option key={provincia.id} value={provincia.id}>{provincia.nombre}</option>
-                                    ))}
-                                </select>
-                            </div>
-                            <div>
-                                <label>Edad:</label>
-                                <input 
-                                    type="number" 
-                                    name="edad" 
-                                    value={editData.edad} 
-                                    onChange={handleChange}
-                                    min="0"
-                                    max="100"
-                                />
-                            </div>
-                            <div>
-                                <label>Altura:</label>
-                                <input
-                                    type="number"
-                                    name="altura"
-                                    value={editData.altura}
-                                    onChange={handleChange}
-                                    min="120"
-                                    max="220"
-                                />
-                            </div>
-                            <button type="submit">Guardar</button>
-                        </form>
-                    )}
-                </>
+                    <div>
+                        <label>Correo electrónico:</label>
+                        <input 
+                            type="email" 
+                            name="email" 
+                            value={editData.email} 
+                            onChange={handleChange}
+                        />
+                    </div>
+                    <div>
+                        <label>Residencia:</label>
+                        <select 
+                            name="provincia_id" 
+                            value={editData.provincia_id} 
+                            onChange={handleChange}
+                        >
+                            <option value="">Seleccionar...</option>
+                            {provincias.map(provincia => (
+                                <option key={provincia.id} value={provincia.id}>{provincia.nombre}</option>
+                            ))}
+                        </select>
+                    </div>
+                    <div>
+                        <label>Edad:</label>
+                        <input 
+                            type="number" 
+                            name="edad" 
+                            value={editData.edad} 
+                            onChange={handleChange}
+                            min="0"
+                            max="100"
+                        />
+                    </div>
+                    <div>
+                        <label>Altura:</label>
+                        <input
+                            type="number"
+                            name="altura"
+                            value={editData.altura}
+                            onChange={handleChange}
+                            min="120"
+                            max="220"
+                        />
+                    </div>
+                    <button type="submit">Guardar</button>
+                </form>
             )}
         </div>
     );

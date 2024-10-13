@@ -38,7 +38,10 @@ export const AuthProvider = ({ children }) => {
         headers: { Authorization: `Bearer ${token}` },
       });
       console.log('Datos de usuario obtenidos:', response.data.profile);
-      setUser(response.data.profile);
+      setUser({
+        ...response.data.profile,
+        id: response.data.profile.usuario_id // Asegúrate de que esto coincida con la estructura de tu respuesta
+      });
       await fetchUserComments(); // Traer comentarios después de obtener datos del usuario
     } catch (error) {
       console.error("Error fetching user data:", error);

@@ -4,7 +4,6 @@ import { FaHeart, FaComment, FaArrowLeft, FaTrash } from "react-icons/fa";
 import NewCommentModal from "../NewCommentModal";
 import "./index.css";
 
-
 const PostDetail = ({
   post,
   onClose,
@@ -14,51 +13,37 @@ const PostDetail = ({
   fetchPosts,
 }) => {
   const [comments, setComments] = useState([]);
-  const [localPost, setLocalPost] = useState({
-    post_id: post?.post_id || "",
-    nombre: post?.nombre || "Unknown",
-    apellido: post?.apellido || "User",
-    ...post,
-  });
-
-
+  const [localPost, setLocalPost] = useState(post);
   const [isCommentModalOpen, setIsCommentModalOpen] = useState(false);
   const [selectedParentId, setSelectedParentId] = useState(null);
   const [likedComments, setLikedComments] = useState({});
 
-
   useEffect(() => {
-    console.log("Selected post:", post);
     if (post && post.post_id) {
       fetchComments();
-    } else {
-      console.error("Post or post.post_id is undefined in PostDetail");
+      setLocalPost(post);
     }
   }, [post]);
 
-
   const fetchComments = async () => {
-    if (!post || !post.post_id) {
-      console.error("Post or post.id is undefined");
-      return;
-    }
-
-
     try {
       const response = await axios.get(
-        `http://localhost:5001/api/posts/${post.post_id}/comments`
+        `http://localhost:5001/api/posts/${post.post_id}/comments`,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
       );
-      console.log("Comments fetched:", response.data);
+      console.log("Comentarios recibidos:", response.data);
       setComments(response.data);
     } catch (error) {
       console.error("Error fetching comments:", error);
     }
   };
 
-
   const handleLocalLike = async (event) => {
     event.preventDefault();
-
     try {
       const response = await axios.put(
         `http://localhost:5001/api/posts/${localPost.post_id}/like`,
@@ -69,45 +54,67 @@ const PostDetail = ({
           },
         }
       );
-      setLocalPost((prevPost) => ({
+  
+      setLocalPost(prevPost => ({
         ...prevPost,
-        likes: response.data.likes,
+        likes: response.data.likes
       }));
+  
+      onLike(event, localPost.post_id);
     } catch (error) {
       console.error("Error al likear el post:", error);
     }
   };
 
-
-  const handleLocalDelete = async (event) => {
-    await onDelete(event, localPost.post_id);
-    onClose();
-    fetchPosts();
-  };
-
-
-  const handleCommentCreated = (newComment) => {
-    setComments([...comments, newComment]);
-  };
-
-
-  const handleDeleteComment = async (commentId) => {
-    if (
-      window.confirm("¿Estás seguro de que quieres eliminar este comentario?")
-    ) {
-      try {
-        await axios.delete(
-          `http://localhost:5001/api/posts/${localPost.post_id}/comments/${commentId}`
-        );
-        setComments(
-          comments.filter((comment) => comment.comment_id !== commentId)
-        );
-      } catch (error) {
-        console.error("Error eliminando el comentario:", error);
-      }
+  const handleCommentLike = async (commentId) => {
+    try {
+      const response = await axios.put(
+        `http://localhost:5001/api/posts/${commentId}/like`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
+      setComments(comments.map(comment => 
+        comment.comment_id === commentId 
+          ? { ...comment, likes: response.data.likes }
+          : comment
+      ));
+      setLikedComments(prev => ({ ...prev, [commentId]: !prev[commentId] }));
+    } catch (error) {
+      console.error("Error al likear el comentario:", error);
     }
   };
 
+  const handleLocalDelete = async (event) => {
+    event.preventDefault();
+    try {
+      await onDelete(event, localPost.post_id);
+      onClose();
+    } catch (error) {
+      console.error("Error al eliminar el post:", error);
+    }
+  };
+
+  const handleCommentCreated = (newComment) => {
+    setComments(prevComments => [...prevComments, newComment]);
+    fetchComments(); // Refetch to ensure we have the latest data
+  };
+
+  const handleCommentDelete = async (commentId) => {
+    try {
+      await axios.delete(`http://localhost:5001/api/posts/${commentId}`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
+      setComments(prevComments => prevComments.filter(comment => comment.comment_id !== commentId));
+    } catch (error) {
+      console.error("Error al eliminar el comentario:", error);
+    }
+  };
 
   const convertToLocalTime = (utcDateString) => {
     const date = new Date(utcDateString);
@@ -116,76 +123,13 @@ const PostDetail = ({
     });
   };
 
-
-  useEffect(() => {
-    const storedLikes = localStorage.getItem("likedComments");
-    if (storedLikes) {
-      setLikedComments(JSON.parse(storedLikes));
-    }
-  }, []);
-
-
-  const handleCommentLike = async (commentId, currentLikes) => {
-    try {
-      const isLiked = likedComments[commentId];
-      const newLikeCount = isLiked ? currentLikes - 1 : currentLikes + 1;
-
-
-      const response = await axios.put(
-        `http://localhost:5001/api/comments/${commentId}/like`,
-        { likes: newLikeCount }
-      );
-      setComments(
-        comments.map((comment) =>
-          comment.comment_id === commentId
-            ? { ...comment, likes: response.data.likes }
-            : comment
-        )
-      );
-
-
-      const newLikedComments = {
-        ...likedComments,
-        [commentId]: !isLiked,
-      };
-      setLikedComments(newLikedComments);
-      localStorage.setItem("likedComments", JSON.stringify(newLikedComments));
-    } catch (error) {
-      console.error("Error actualizando likes del comentario:", error);
-    }
-  };
-
-
-  const renderComments = () => {
-    const commentTree = [];
-    const commentMap = {};
-
-
-    // Construir un mapa de comentarios por id
-    comments.forEach((comment) => {
-      comment.children = [];
-      commentMap[comment.comment_id] = comment;
-    });
-
-
-    // Construir la estructura de árbol
-    comments.forEach((comment) => {
-      if (comment.parentid) {
-        // Si el comentario tiene un padre, añádelo como hijo de ese padre
-        commentMap[comment.parentid].children.push(comment);
-      } else {
-        // Si no tiene padre, es un comentario raíz
-        commentTree.push(comment);
-      }
-    });
-
-
-    // Renderizar el árbol de comentarios
-    const renderCommentBranch = (commentBranch, depth = 0) => {
-      return commentBranch.map((comment) => (
-        <div
-          key={comment.comment_id}
-          className="commentRT"
+  const renderComments = (parentId = null, depth = 0) => {
+    return comments
+      .filter(comment => comment.parent_id === parentId)
+      .map((comment) => (
+        <div 
+          key={comment.comment_id} 
+          className="comment"
           style={{ marginLeft: `${depth * 20}px` }}
         >
           <div className="comment-header">
@@ -195,21 +139,15 @@ const PostDetail = ({
               className="user-avatar"
             />
             <div className="comment-info">
-              <h4>
-                {comment.nombre || "Unknown"} {comment.apellido || "User"}
-              </h4>
+              <h4>{comment.nombre} {comment.apellido}</h4>
               <p>{convertToLocalTime(comment.fechapublicacion)}</p>
             </div>
           </div>
           <p className="comment-content">{comment.contenido}</p>
           <div className="comment-footer">
             <button
-              onClick={() =>
-                handleCommentLike(comment.comment_id, comment.likes)
-              }
-              className={`comment-likes ${
-                likedComments[comment.comment_id] ? "liked" : ""
-              }`}
+              onClick={() => handleCommentLike(comment.comment_id)}
+              className={`action-button ${likedComments[comment.comment_id] ? "liked" : ""}`}
             >
               <FaHeart /> {comment.likes || 0}
             </button>
@@ -218,27 +156,21 @@ const PostDetail = ({
                 setSelectedParentId(comment.comment_id);
                 setIsCommentModalOpen(true);
               }}
-              className="reply-button"
+              className="action-button"
             >
-              <FaComment /> {(comment.children && comment.children.length) || 0}
+              <FaComment /> {comments.filter(c => c.parent_id === comment.comment_id).length}
             </button>
             <button
-              onClick={() => handleDeleteComment(comment.comment_id)}
-              className="delete-button"
+              onClick={() => handleCommentDelete(comment.comment_id)}
+              className="action-button delete-button"
             >
               <FaTrash />
             </button>
           </div>
-          {/* Renderizar las respuestas al comentario */}
-          {renderCommentBranch(comment.children, depth + 1)}
+          {renderComments(comment.comment_id, depth + 1)}
         </div>
       ));
-    };
-
-
-    return renderCommentBranch(commentTree);
   };
-
 
   return (
     <div className="post-detail-overlay">
@@ -247,7 +179,7 @@ const PostDetail = ({
           <button onClick={onClose} className="back-button">
             <FaArrowLeft />
           </button>
-          <h2 className="post-detail-title">Posteos</h2>
+          <h2 className="post-detail-title">Detalle del Post</h2>
         </div>
         <div className="original-post">
           <div className="post-header">
@@ -271,13 +203,16 @@ const PostDetail = ({
             <button
               onClick={handleLocalLike}
               className={`action-button ${
-                likedPosts[localPost.id] ? "liked" : ""
+                likedPosts[localPost.post_id] ? "liked" : ""
               }`}
             >
               <FaHeart /> {localPost.likes || 0}
             </button>
             <button
-              onClick={() => setIsCommentModalOpen(true)}
+              onClick={() => {
+                setSelectedParentId(localPost.post_id);
+                setIsCommentModalOpen(true);
+              }}
               className="action-button"
             >
               <FaComment /> {comments.length}
@@ -286,24 +221,23 @@ const PostDetail = ({
         </div>
         <div className="comments-section">
           <h3>Comentarios</h3>
-          {renderComments()}
+          {renderComments(localPost.post_id)}
         </div>
       </div>
       {isCommentModalOpen && (
-        <NewCommentModal
-          isOpen={isCommentModalOpen}
-          onClose={() => {
-            setIsCommentModalOpen(false);
-            setSelectedParentId(null);
-          }}
-          onCommentCreated={handleCommentCreated}
-          postId={localPost.post_id}
-          parentId={selectedParentId}
-        />
-      )}
+      <NewCommentModal
+        isOpen={isCommentModalOpen}
+        onClose={() => {
+          setIsCommentModalOpen(false);
+          setSelectedParentId(null);
+        }}
+        onCommentCreated={handleCommentCreated}
+        postId={localPost.post_id}
+        parentId={selectedParentId}
+      />
+    )}
     </div>
   );
 };
-
 
 export default PostDetail;

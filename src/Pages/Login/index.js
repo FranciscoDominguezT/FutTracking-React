@@ -46,9 +46,10 @@ const Login = () => {
         { email, password }
       );
   
-      const { token } = response.data;
+      const { token, user } = response.data;
       localStorage.setItem("token", token);
       setToken(token);
+      setUser(user);
       await fetchUserData(token);
       navigate("/home");
     } catch (error) {

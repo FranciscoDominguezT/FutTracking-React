@@ -164,9 +164,6 @@
     transition: transform 0.3s ease;
 }
 
-.liked:hover {
-    transform: scale(1.2);
-}
 
 .share-menu {
     position: absolute;

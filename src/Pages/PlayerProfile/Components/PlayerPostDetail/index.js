@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { FaHeart, FaComment, FaArrowLeft, FaTrash } from "react-icons/fa";
 import NewCommentModal from "../NewCommentModal";
-import "./index.css";
 
 const PostDetail = ({
   post,
@@ -194,9 +193,6 @@ const PostDetail = ({
               </h3>
               <p>{convertToLocalTime(localPost.fechapublicacion)}</p>
             </div>
-            <button onClick={handleLocalDelete} className="delete-button">
-              <FaTrash />
-            </button>
           </div>
           <p className="post-content">{localPost.contenido}</p>
           <div className="post-footer">

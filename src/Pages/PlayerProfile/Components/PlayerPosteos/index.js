@@ -1,37 +1,30 @@
 import React, { useEffect, useState } from "react";
-import { FaHeart, FaComment, FaPlus, FaTrash } from "react-icons/fa";
-import NewTweetModal from "../NewTweetModal";
-import PostDetail from "../PostDetail";
+import { FaHeart, FaComment } from "react-icons/fa";
+import PlayerPostDetail from "../PlayerPostDetail";
 import NewCommentModal from "../NewCommentModal";
 import axios from "axios";
-import "./index.css";
 
-const Posteos = () => {
+const PlayerPosteos = ({ userId }) => {
   const [posts, setPosts] = useState([]);
   const [likedPosts, setLikedPosts] = useState({});
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedPost, setSelectedPost] = useState(null);
   const [isCommentModalOpen, setIsCommentModalOpen] = useState(false);
   const [selectedPostId, setSelectedPostId] = useState(null);
-  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
-  const [postToDelete, setPostToDelete] = useState(null);
 
   useEffect(() => {
     fetchPosts();
     loadLikedPosts();
-  }, []);
+  }, [userId]);
 
   const fetchPosts = async () => {
     try {
       const token = localStorage.getItem("token");
-      const response = await fetch("http://localhost:5001/api/posts", {
+      const response = await axios.get(`http://localhost:5001/api/posts/user/${userId}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
-      const data = await response.json();
-      console.log("Posts cargados:", data);
-      setPosts(data);
+      setPosts(response.data);
     } catch (error) {
       console.error("Error fetching posts:", error);
     }
@@ -54,7 +47,6 @@ const Posteos = () => {
       const isLiked = likedPosts[postId];
       const token = localStorage.getItem('token');
   
-      // Realizar la solicitud con axios
       const response = await axios.put(
         `http://localhost:5001/api/posts/${postId}/like`, 
         {}, 
@@ -65,17 +57,14 @@ const Posteos = () => {
         }
       );
   
-      // Obtener los datos directamente de response.data
       const data = response.data;
   
-      // Actualizar los likes del post específico
       setPosts(
         posts.map((post) =>
           post.post_id === postId ? { ...post, likes: data.likes } : post
         )
       );
   
-      // Actualizar el estado de likedPosts
       const newLikedPosts = {
         ...likedPosts,
         [postId]: !isLiked,
@@ -87,43 +76,6 @@ const Posteos = () => {
       console.error("Error updating likes:", error);
     }
   };  
-
-  const handleDeleteTweet = async (postId) => {
-    if (!postId || typeof postId !== "number") {
-      console.error("Error: postId no está definido o es inválido.", postId);
-      return;
-    }
-
-    try {
-      const response = await fetch(`http://localhost:5001/api/posts/${postId}`, {
-        method: "DELETE",
-      });
-
-      if (response.ok) {
-        setPosts((prevPosts) =>
-          prevPosts.filter((post) => post.post_id !== postId)
-        );
-        setSelectedPost(null);
-        setIsConfirmModalOpen(false); // Cerrar el modal después de eliminar
-      } else {
-        const errorText = await response.text();
-        console.error("Error al eliminar el post. Respuesta:", errorText);
-      }
-    } catch (error) {
-      console.error("Error al eliminar el tweet:", error);
-    }
-  };
-
-  const openConfirmModal = (event, postId) => {
-    event.stopPropagation();
-    console.log("Abriendo modal para el post:", postId);
-    setPostToDelete(postId);
-    setIsConfirmModalOpen(true);
-  };
-
-  const handleTweetCreated = (newTweet) => {
-    setPosts((prevPosts) => [{ ...newTweet, post_id: newTweet.id }, ...prevPosts]);
-  };
 
   const handlePostClick = (post) => {
     setSelectedPost(post);
@@ -147,18 +99,9 @@ const Posteos = () => {
 
   return (
     <div className="posteos-container">
-      <button className="new-tweet-button" onClick={() => setIsModalOpen(true)}>
-        <FaPlus />
-      </button>
-      <NewTweetModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        onTweetCreated={handleTweetCreated}
-      />
-
       <div className="posts-scroll-container">
         {posts.length === 0 ? (
-          <p className="no-posts-message">No hay posteos cargados aún.</p> // Mensaje cuando no hay posteos
+          <p className="no-posts-message">Este usuario aún no tiene posteos.</p>
         ) : (
           posts.map((post) => (
             <div
@@ -177,12 +120,6 @@ const Posteos = () => {
                   <h3>{post.nombre || "Unknown"} {post.apellido || "User"}</h3>
                   <p>{new Date(post.fechapublicacion).toLocaleString()}</p>
                 </div>
-                <button
-                  onClick={(event) => openConfirmModal(event, post.post_id)}
-                  className="delete-button"
-                >
-                  <FaTrash />
-                </button>
               </div>
               <p className="post-content">{post.contenido}</p>
               <div className="post-footerA">
@@ -205,13 +142,13 @@ const Posteos = () => {
       </div>
 
       {selectedPost && (
-        <PostDetail
+        <PlayerPostDetail
           post={selectedPost}
           onClose={() => setSelectedPost(null)}
-          onDelete={handleDeleteTweet}
           onLike={handleLike}
           likedPosts={likedPosts}
           fetchPosts={fetchPosts}
+          isOwnProfile={false}
         />
       )}
 
@@ -223,30 +160,8 @@ const Posteos = () => {
           onCommentCreated={handleCommentCreated}
         />
       )}
-
-      {isConfirmModalOpen && (
-        <div className="confirm-modal open">
-          <div className="confirm-modal-content">
-            <h3>¿Estás seguro de que deseas eliminar este post?</h3>
-            <div className="confirm-modal-buttons">
-              <button
-                onClick={() => setIsConfirmModalOpen(false)}
-                className="cancel-button"
-              >
-                Cancelar
-              </button>
-              <button
-                onClick={() => handleDeleteTweet(postToDelete)}
-                className="delete-confirm-button"
-              >
-                Eliminar
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };
 
-export default Posteos;
+export default PlayerPosteos;
