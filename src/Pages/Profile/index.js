@@ -6,6 +6,7 @@ import Tabs from "./Components/Tabs";
 import Gallery from "./Components/Gallery";
 import Posteos from "./Components/Posteos";
 import MisDatos from "./Components/MisDatos";
+import MisDatosAficionado from "./Components/MisDatosAficionado";
 import Footer from "../Home/Components/Footer";
 import './index.css';
 
@@ -13,7 +14,6 @@ function Profile() {
     const [activeTab, setActiveTab] = useState('Videos');
     const { user } = useContext(AuthContext);
 
-    // Recuperar la pestaña activa desde localStorage cuando el componente se monta
     useEffect(() => {
         const storedTab = localStorage.getItem('activeTab');
         if (storedTab) {
@@ -23,12 +23,12 @@ function Profile() {
 
     const handleTabChange = (tab) => {
         setActiveTab(tab);
-        localStorage.setItem('activeTab', tab); // Guardar la pestaña activa en localStorage
+        localStorage.setItem('activeTab', tab);
     };
 
     const handleEditClick = () => {
-        setActiveTab('MisDatos'); // Cambia la pestaña activa a MisDatos
-        localStorage.setItem('activeTab', 'MisDatos'); // Guardar la pestaña activa en localStorage
+        setActiveTab('MisDatos');
+        localStorage.setItem('activeTab', 'MisDatos');
     };
 
     return (
@@ -37,9 +37,11 @@ function Profile() {
             <ProfileInfo onEditClick={handleEditClick} />
             <Tabs activeTab={activeTab} onTabChange={handleTabChange} />
             <main className="profile-main">
-                {activeTab === 'Videos' && <Gallery isUserProfile={true} />} {/* Usamos la prop isUserProfile */}
+                {activeTab === 'Videos' && <Gallery isUserProfile={true} />}
                 {activeTab === 'Posteos' && <Posteos />}
-                {activeTab === 'MisDatos' && <MisDatos />}
+                {activeTab === 'MisDatos' && (
+                    user.rol === 'Jugador' ? <MisDatos /> : <MisDatosAficionado />
+                )}
             </main>
             <footer className="footer">
                 <Footer />
