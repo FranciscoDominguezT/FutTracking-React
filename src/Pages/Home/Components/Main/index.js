@@ -22,7 +22,7 @@ const Main = () => {
   const [comments, setComments] = useState([]);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
-  const [liked, setLiked] = useState(false);
+  const [liked, setLiked] = useState(false);  // Estado para saber si el video está likeado
   const [commentsCount, setCommentsCount] = useState(0);
   const [isFollowing, setIsFollowing] = useState(false);
   const [userData, setUserData] = useState(null);
@@ -38,6 +38,7 @@ const Main = () => {
 
   useEffect(() => {
     const getRandomVideoId = () => Math.floor(Math.random() * 5) + 1;
+
     const fetchVideoData = async () => {
       const videoId = getRandomVideoId();
       try {
@@ -45,10 +46,15 @@ const Main = () => {
         setVideoData(videoResponse.data);
         setSelectedVideo(videoResponse.data);
         setLikes(videoResponse.data.likes);
-        setLiked(videoResponse.data.liked);
+        setLiked(videoResponse.data.liked); // Actualiza el estado de liked desde la respuesta del servidor
 
         const userResponse = await axios.get(`${API_BASE_URL}/videos/player/${videoResponse.data.usuarioid}`);
         setUserData(userResponse.data);
+
+        if (currentUserId) {
+          const followResponse = await axios.get(`${API_BASE_URL}/videos/${currentUserId}/${videoResponse.data.usuarioid}/follow`);
+          setIsFollowing(followResponse.data.isFollowing);
+        }
 
         const likesResponse = await axios.get(`${API_BASE_URL}/videos/${videoId}/likes`);
         setLikes(likesResponse.data.likes);
@@ -66,7 +72,7 @@ const Main = () => {
     };
 
     fetchVideoData();
-  }, []);
+  }, [currentUserId]);
 
   useEffect(() => {
     const fetchCommentsCount = async () => {
@@ -128,15 +134,14 @@ const Main = () => {
         }
       });
       setLikes(response.data.likes);
-      setLiked(response.data.liked);
+      setLiked(response.data.liked); // Actualiza el estado de liked
     } catch (error) {
       console.error('Error updating video likes:', error);
     }
   };
-
   
   const handleFollowToggle = async () => {
-    if (!selectedVideo) return;
+    if (!selectedVideo || !currentUserId) return;
     try {
       const response = await axios.post(`${API_BASE_URL}/videos/${currentUserId}/${selectedVideo.usuarioid}/followChange`);
       setIsFollowing(response.data.isFollowing);
@@ -144,8 +149,6 @@ const Main = () => {
       console.error("Error toggling follow status:", error);
     }
   };
-
-  
 
   return (
     <div className="image-container">
@@ -167,6 +170,7 @@ const Main = () => {
           userData={userData}
           isFollowing={isFollowing}
           onFollowToggle={handleFollowToggle}
+          currentUserId={currentUserId}
         />
         <Stats
           likes={likes}
@@ -174,7 +178,7 @@ const Main = () => {
           onLikeClick={handleLikeClick}
           onCommentClick={handleCommentClick}
           onShareClick={handleShareClick}
-          liked={liked}
+          liked={liked} // Esto se utiliza para saber si el video fue likeado
         />
       </div>
       {showShareMenu && (

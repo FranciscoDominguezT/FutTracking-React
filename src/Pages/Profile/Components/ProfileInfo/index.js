@@ -5,12 +5,13 @@ import "./index.css";
 import {AuthContext} from "../../../../Context/auth-context";
 
 const ProfileInfo = ({ onEditClick }) => {
-  const { user, token } = useContext(AuthContext);
+  
   const [profile, setProfile] = useState(null);
   const [followersCount, setFollowersCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
+  const { user, token } = useContext(AuthContext);
 
   useEffect(() => {
     const fetchProfile = async () => {

@@ -30,7 +30,7 @@ const Footer = () => {
                     <span className='spa'>Community</span>
                 </div>
                 <div className="footer-icon">
-                    <img src={user} alt="Logo" className="footer-icon-icon"/>
+                    <Link to="/profile"><img src={user} alt="Logo" className="footer-icon-icon"/></Link>
                     <span className='spa'>Perfil</span>
                 </div>
             </div>

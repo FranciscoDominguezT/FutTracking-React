@@ -19,9 +19,6 @@ const VideoInfo = ({ videoOwner, isFollowing, onFollowToggle }) => {
           {videoOwner.provincia_nombre}, {videoOwner.nacion_nombre}
         </p>
       </div>
-      <button className="follow-button" onClick={onFollowToggle}>
-        {isFollowing ? "Siguiendo" : "Seguir"}
-      </button>
     </div>
   );
 };

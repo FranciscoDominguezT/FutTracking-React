@@ -1,0 +1,75 @@
+.followers-list-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+  }
+  
+  .followers-list-content {
+    background-color: white;
+    border-radius: 8px;
+    width: 90%;
+    max-width: 500px;
+    height: 850px; /* Altura fija */
+    padding: 20px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .followers-list-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+  
+  .back-button {
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    margin-right: 10px;
+  }
+  
+  .followers-list-title {
+    font-size: 20px;
+    margin: 0;
+  }
+  
+  .followers-list {
+    flex-grow: 1; /* Asegura que la lista ocupe el espacio disponible */
+    overflow-y: auto; /* Agrega scroll si hay más seguidores */
+  }
+  
+  .follower-item {
+    display: flex;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid #eee;
+  }
+  
+  .follower-avatar {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    margin-right: 15px;
+  }
+  
+  .follower-info h3 {
+    margin: 0;
+    font-size: 16px;
+  }
+  
+  .follower-info p {
+    margin: 5px 0 0;
+    font-size: 14px;
+    color: #666;
+  }
+
+  

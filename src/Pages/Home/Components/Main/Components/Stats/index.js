@@ -10,7 +10,7 @@ const Stats = ({ likes, commentsCount, onLikeClick, onCommentClick, onShareClick
         style={{ cursor: "pointer" }}
       >
         <FaHeart className={`stat-icon ${liked ? "liked" : ""}`} />
-        <span>{likes}</span>
+        <span >{likes}</span>
       </div>
       <div
         className="stat"

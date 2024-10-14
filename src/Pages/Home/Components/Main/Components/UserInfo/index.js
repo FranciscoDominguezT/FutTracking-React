@@ -1,6 +1,8 @@
 import React from 'react';
 
-const UserInfo = ({ userData, isFollowing, onFollowToggle }) => {
+const UserInfo = ({ userData, isFollowing, onFollowToggle, currentUserId }) => {
+  const isOwnProfile = userData && currentUserId === userData.usuario_id;
+
   return (
     <div className="user-info">
       {userData ? (
@@ -14,9 +16,14 @@ const UserInfo = ({ userData, isFollowing, onFollowToggle }) => {
             <p className="user-name">{`${userData.nombre} ${userData.apellido}`}</p>
             <p className="user-location">{`${userData.provincia_nombre || ''}, ${userData.nacion_nombre || ''}`}</p>
           </div>
-          <button className="follow-button" onClick={onFollowToggle}>
-            {isFollowing ? "Siguiendo" : "Seguir"}
-          </button>
+          {!isOwnProfile && (
+            <button 
+              className={`follow-button ${isFollowing ? 'following' : ''}`} 
+              onClick={onFollowToggle}
+            >
+              {isFollowing ? "Siguiendo" : "Seguir"}
+            </button>
+          )}
         </>
       ) : (
         <p>Cargando información del usuario...</p>

@@ -402,6 +402,14 @@
     font-size: 0.8rem;
 }
 
+.like-icon {
+    cursor: pointer;
+  }
+  
+  .like-icon.liked {
+    color: red; /* Cambia a rojo cuando está likeado */
+  }
+
 .replies {
     margin-top: 10px;
     padding-left: 20px;
