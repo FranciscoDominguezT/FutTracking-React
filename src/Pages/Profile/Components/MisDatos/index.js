@@ -149,22 +149,18 @@ const MisDatos = () => {
                             name="edad" 
                             value={editData.edad} 
                             onChange={handleChange}
-                            min="0"
-                            max="100"
                         />
                     </div>
                     <div>
-                        <label>Altura:</label>
-                        <input
-                            type="number"
-                            name="altura"
-                            value={editData.altura}
+                        <label>Altura (cm):</label>
+                        <input 
+                            type="number" 
+                            name="altura" 
+                            value={editData.altura} 
                             onChange={handleChange}
-                            min="120"
-                            max="220"
                         />
                     </div>
-                    <button type="submit">Guardar</button>
+                    <button type="submit">Guardar cambios</button>
                 </form>
             )}
         </div>

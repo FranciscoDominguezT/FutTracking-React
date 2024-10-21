@@ -7,6 +7,7 @@
     z-index: -1;
 }
 
+
 .background-animation canvas {
     display: block;
     position: absolute;
@@ -14,7 +15,8 @@
     left: 0;
 }
 
-.login-container {
+
+.register-container {
     margin: 0;
     padding: 0 20px;
     box-sizing: border-box;
@@ -23,14 +25,18 @@
     color: white;
     display: flex;
     flex-direction: column;
-    height: 100vh;
+    height: 110vh;
     overflow: hidden;
     position: relative;
-    z-index: 1;
+    z-index: 1; /* Añadido */
+    margin-top: -95px;
 }
 
+
+
+
 .logoYY {
-    width: 75px;
+    width: 75px; /* Reducido */
     margin-bottom: 60px;
     margin-left: auto;
     margin-right: auto;
@@ -39,36 +45,41 @@
     margin-top: 10rem;
 }
 
-h1 {
-    margin-bottom: 15px;
-    font-size: 25px;
-    font-weight: bold;
-    text-align: left;
-}
 
 .register-text {
     margin-bottom: 15px;
     color: #fff;
-    font-size: 14px;
+    font-size: 14px; /* Reducido */
     text-align: left;
 }
+
 
 .register-text a {
     color: #00aaff;
     text-decoration: none;
 }
 
+
 .input-group {
     margin-bottom: 15px;
     text-align: left;
 }
 
+
 .input-group label {
-    font-size: 15px;
+    font-size: 15px; /* Reducido */
     margin-bottom: 3px;
     display: block;
     color: #ddd;
 }
+
+
+input:-webkit-autofill {
+    background-color: transparent !important;
+    color: white !important;
+    box-shadow: 0 0 0px 1000px #0a1e2b inset !important; /* Mantiene el color de fondo */
+}
+
 
 .input-wrapper {
     position: relative;
@@ -76,49 +87,55 @@ h1 {
     align-items: center;
 }
 
+
 .input-group input {
     width: 100%;
-    padding: 12px;
+    padding: 12px; /* Reducido */
     border: none;
     border-bottom: 2px solid #fff;
     background-color: transparent;
     color: white;
-    font-size: 14px;
-    padding-left: 35px;
+    font-size: 14px; /* Reducido */
+    padding-left: 35px; /* Reducido */
     outline: none;
 }
+
 
 .input-icon {
     position: absolute;
     left: 8px;
-    width: 18px;
+    width: 18px; /* Reducido */
 }
+
 
 .input-icon-right {
     position: absolute;
     right: 8px;
-    width: 18px;
+    width: 18px; /* Reducido */
     cursor: pointer;
 }
+
 
 .options {
     display: flex;
     justify-content: space-between;
     margin-bottom: 15px;
-    font-size: 14px;
+    font-size: 14px; /* Reducido */
 }
+
 
 .options a {
     color: #00aaff;
     text-decoration: none;
 }
 
+
 .btn-login {
     background-color: #0a743b;
-    padding: 10px;
+    padding: 10px; /* Reducido */
     border-radius: 25px;
     color: white;
-    font-size: 14px;
+    font-size: 14px; /* Reducido */
     font-weight: bold;
     border: none;
     width: 100%;
@@ -126,81 +143,33 @@ h1 {
     margin-bottom: 15px;
 }
 
+
 .btn-login:hover {
     background-color: #086f35;
 }
 
+
 .continue-text {
     margin-bottom: 15px;
     margin-top: 30px;
-    font-size: 15px;
+    font-size: 15px; /* Reducido */
     text-align: center;
 }
+
 
 .social-login {
     display: flex;
     justify-content: center;
 }
 
-.btn-google {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background-color: #0a1e2b;
-    color: white;
-    border: 3px solid #0a743b;
-    border-radius: 25px;  /* Reduzco un poco el radio */
-    padding: 10px 20px;    /* Reducido el tamaño del padding */
-    font-size: 13px;      /* Tamaño de la fuente un poco más pequeño */
-    font-weight: bold;
-    cursor: pointer;
-    transition: transform 0.3s ease, background-color 0.3s ease;
-    width: 100%;           /* Hago el botón un poco más angosto */
-    max-width: 300px;     /* Limito el tamaño máximo del botón */
-}
 
-.btn-google:hover {
-    background-color: #0d2b3a;
-    transform: scale(1.03);  /* Animación más sutil */
-}
-
-.google-icon {
-    width: 18px;  /* Reduzco el tamaño del ícono */
-    margin-right: 8px;
+.social-login a {
+    margin: 0 8px;
 }
 
 
-.custom-alert {
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    background-color: #ff4d4d;
-    color: white;
-    padding: 15px;
-    border-radius: 5px;
-    z-index: 10;
-    animation: slideIn 0.5s ease;
-}
-
-@keyframes slideIn {
-    from {
-        opacity: 0;
-        transform: translateX(100%);
-    }
-    to {
-        opacity: 1;
-        transform: translateX(0);
-    }
-}
-
-.rol-text {
-    margin-top: 35px;
-    color: #fff;
-    font-size: 14px;
-    text-align: center;
-}
-
-.rol-text a {
-    color: #00aaff;
-    text-decoration: none;
+.social-login img {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
 }

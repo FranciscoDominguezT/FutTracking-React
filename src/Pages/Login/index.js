@@ -139,6 +139,9 @@ const Login = () => {
             Iniciar sesión con Google
           </button>
         </div>
+        <p className="rol-text">
+          Si desea cambiar de rol, <a href="/changeRol">haga click aquí!</a>
+        </p>
       </form>
     </div>
   );

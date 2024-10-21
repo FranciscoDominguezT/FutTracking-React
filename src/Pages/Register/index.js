@@ -67,7 +67,7 @@ const Register = () => {
     try {
       const response = await axios.post('http://localhost:5001/api/register', formData);
       localStorage.setItem('token', response.data.token);
-      navigate('/home');
+      navigate('/');
     } catch (error) {
       setError(error.response?.data?.error || 'Error al registrar');
       setAuthError(error.response?.data?.error || 'Error al registrar');

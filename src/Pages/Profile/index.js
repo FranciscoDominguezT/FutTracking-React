@@ -7,6 +7,7 @@ import Gallery from "./Components/Gallery";
 import Posteos from "./Components/Posteos";
 import MisDatos from "./Components/MisDatos";
 import MisDatosAficionado from "./Components/MisDatosAficionado";
+import MisDatosReclutador from "./Components/MisDatosReclutador"; // Importa el componente
 import Footer from "../Home/Components/Footer";
 import './index.css';
 
@@ -40,7 +41,10 @@ function Profile() {
                 {activeTab === 'Videos' && <Gallery isUserProfile={true} />}
                 {activeTab === 'Posteos' && <Posteos />}
                 {activeTab === 'MisDatos' && (
-                    user.rol === 'Jugador' ? <MisDatos /> : <MisDatosAficionado />
+                    user.rol === 'Jugador' ? <MisDatos />
+                    : user.rol === 'Aficionado' ? <MisDatosAficionado />
+                    : user.rol === 'Reclutador' ? <MisDatosReclutador /> // Nueva lógica para Reclutador
+                    : null
                 )}
             </main>
             <footer className="footer">

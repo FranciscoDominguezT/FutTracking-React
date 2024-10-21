@@ -28,7 +28,7 @@ const ProfileInfo = ({ usuario_id }) => {
           user && user.id ? axios.get(`http://localhost:5001/api/videos/${user.id}/${usuario_id}/follow`) : Promise.resolve({ data: { isFollowing: false } }) // Estado de seguimiento
         ]);
 
-        setProfile(profileResponse.data);
+        setProfile(profileResponse.data.profile);
         setFollowersCount(followResponse.data.followersCount); // Actualizar la cantidad de seguidores
         setIsFollowing(followResponse.data.isFollowing);
       } catch (error) {

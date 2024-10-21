@@ -8,7 +8,7 @@ const PlayerCard = ({ player }) => {
     const handleCardClick = () => {
       if (player.usuario_id) {
         console.log(`Navigating to profile with usuario_id: ${player.usuario_id}`);
-        navigate(`/playerProfile/${player.usuario_id}`);
+        navigate(`/player/${player.usuario_id}`);
       } else {
         console.error("usuario_id is undefined");
       }

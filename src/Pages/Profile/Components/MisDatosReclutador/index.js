@@ -3,7 +3,7 @@ import axios from "axios";
 import { FaPencilAlt } from "react-icons/fa";
 import { AuthContext } from "../../../../Context/auth-context";
 
-const MisDatosAficionado = () => {
+const MisDatosReclutador = () => {
     const [userData, setUserData] = useState(null);
     const [editing, setEditing] = useState(false);
     const [editData, setEditData] = useState({
@@ -143,4 +143,4 @@ const MisDatosAficionado = () => {
     );
 };
 
-export default MisDatosAficionado;
+export default MisDatosReclutador;
