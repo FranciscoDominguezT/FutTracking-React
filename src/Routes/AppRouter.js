@@ -12,6 +12,7 @@ import Jugador from '../Pages/ChangeRol/Components/Jugador';
 import Reclutador from '../Pages/ChangeRol/Components/Reclutador';
 import MailJugador from '../Pages/ChangeRol/Components/MailJugador';
 import MailReclutador from '../Pages/ChangeRol/Components/MailReclutador';
+import ForgotPassword from '../Pages/ForgotPassword';
 
 const AppRouter = () => {
   return (
@@ -29,6 +30,7 @@ const AppRouter = () => {
       <Route path="/search" element={<SearchResultsPage />} />
       <Route path="/mailJugador" element={<MailJugador />} />
       <Route path="/mailReclutador" element={<MailReclutador />} />
+      <Route path="/forgotPassword" element={<ForgotPassword />} />
     </Routes>
   );
 };

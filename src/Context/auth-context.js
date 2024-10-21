@@ -11,6 +11,7 @@ export const AuthContext = createContext({
   setAuthError: () => { },
   logout: () => { },
   fetchUserData: () => { },
+  login: () => { },
 });
 
 export const AuthProvider = ({ children }) => {
@@ -50,6 +51,39 @@ export const AuthProvider = ({ children }) => {
       setIsLoading(false);
     }
   }, []);
+
+  const login = async (email, password, rememberMe) => {
+    try {
+      const response = await axios.post(
+        "http://localhost:5001/api/login/login",
+        { email, password, rememberMe }
+      );
+  
+      const { token, user } = response.data;
+      if (rememberMe) {
+        localStorage.setItem("token", token);
+      } else {
+        sessionStorage.setItem("token", token);
+      }
+      setToken(token);
+      setUser(user);
+      await fetchUserData(token);
+      return { token, user };
+    } catch (error) {
+      throw error;
+    }
+  };
+
+  const logout = async () => {
+    try {
+      await supabase.auth.signOut();
+      setUser(null);
+      setToken(null);
+      localStorage.removeItem('token');
+    } catch (error) {
+      console.error('Error al cerrar sesión:', error);
+    }
+  };
 
   useEffect(() => {
     console.log('AuthContext useEffect iniciado');
@@ -99,22 +133,11 @@ export const AuthProvider = ({ children }) => {
     };
   }, [fetchUserData]);
 
-  const logout = async () => {
-    try {
-      await supabase.auth.signOut();
-      setUser(null);
-      setToken(null);
-      localStorage.removeItem('token');
-    } catch (error) {
-      console.error('Error al cerrar sesión:', error);
-    }
-  };
-
   console.log('Estado actual del usuario:', user);
   console.log('Estado actual del token:', token);
 
   return (
-    <AuthContext.Provider value={{ user, token, authError, setUser, setToken, setAuthError, logout, isLoading, fetchUserData }}>
+    <AuthContext.Provider value={{ user, token, authError, setUser, setToken, setAuthError, logout, isLoading, fetchUserData, login }}>
       {children}
     </AuthContext.Provider>
   );

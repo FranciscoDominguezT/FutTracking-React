@@ -16,7 +16,8 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const [passwordVisible, setPasswordVisible] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
-  const { setUser, setToken, setAuthError, fetchUserData } = useContext(AuthContext);
+  const [rememberMe, setRememberMe] = useState(false);
+  const { setUser, setToken, setAuthError, fetchUserData, login } = useContext(AuthContext);
   const navigate = useNavigate();
 
   const togglePasswordVisibility = () => {
@@ -43,7 +44,7 @@ const Login = () => {
     try {
       const response = await axios.post(
         "http://localhost:5001/api/login/login",
-        { email, password }
+        { email, password, rememberMe}
       );
   
       const { token, user } = response.data;
@@ -121,9 +122,13 @@ const Login = () => {
         </div>
         <div className="options">
           <label>
-            <input type="checkbox" /> Recuérdame
+            <input 
+              type="checkbox" 
+              checked={rememberMe}
+              onChange={(e) => setRememberMe(e.target.checked)}
+            /> Recuérdame
           </label>
-          <a href="#">Olvidé mi contraseña</a>
+          <a href="/forgotPassword">Olvidé mi contraseña</a>
         </div>
         <button type="submit" className="btn-login">
           Ingresar
