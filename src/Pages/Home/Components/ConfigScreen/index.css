@@ -6,7 +6,35 @@
   background-color: #f8f8f8;
   font-family: 'Arial', sans-serif;
   padding: 0;
+  position: relative;
 }
+
+
+/* Botón de volver atrás */
+.back-button {
+  position: absolute;
+  top: 20px; /* Ajusta la posición */
+  left: 20px; /* Ajusta la posición */
+  width: 40px; /* Tamaño del botón para hacerlo circular */
+  height: 40px; /* Tamaño del botón para hacerlo circular */
+  background-color: #000; /* Fondo negro */
+  border: none;
+  border-radius: 50%; /* Hacer el botón perfectamente circular */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15); /* Sombra para darle un poco de profundidad */
+  cursor: pointer;
+  z-index: 1000; /* Asegurarse que esté al frente */
+}
+
+
+.back-button svg {
+  color: #fff; /* Color blanco para la flecha */
+  font-size: 18px; /* Tamaño de la flecha */
+}
+
+
 
 
 /* Encabezado */
@@ -14,7 +42,6 @@
   background-color: #157446;
   padding: 40px 20px;
   text-align: center;
-  position: relative;
   border-bottom-left-radius: 25px;
   border-bottom-right-radius: 25px;
   box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
@@ -28,7 +55,7 @@
   font-size: 24px;
   font-weight: bold;
   color: white;
-  margin-left: 10px; /* Separa el icono del texto */
+  margin-left: 10px;
   margin-top: 15px;
 }
 
@@ -183,7 +210,7 @@ input:checked + .slider:before {
   box-shadow: 0 -1px 10px rgba(0, 0, 0, 0.1);
   border-top-left-radius: 25px;
   border-top-right-radius: 25px;
-  margin-bottom: 20px; /* Espacio correcto antes del final de la pantalla */
+  margin-bottom: 20px;
 }
 
 
